@@ -187,6 +187,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue-l);box-shadow:0 
     <div class="bbody">
       <div class="fr"><label>Empresa y dirección</label><textarea id="carrierBlock" rows="3" placeholder="Transportes García S.L.&#10;Calle Transporte, 8&#10;41007 Sevilla"></textarea></div>
       <div class="fr"><label>NIF / CIF transportista</label><input id="carrierNIF" placeholder="B87654321" style="text-transform:uppercase"/></div>
+      <div class="fr"><label>Nº autorización de transporte</label><input id="carrierAuthNum" placeholder="MDGT/00000000"/></div>
       <div class="fr2">
         <div class="fr"><label>Conductor</label><input id="driverName" placeholder="Nombre y apellidos"/></div>
         <div class="fr"><label>DNI conductor</label><input id="driverDNI" placeholder="12345678A" style="text-transform:uppercase"/></div>
@@ -461,7 +462,10 @@ function validarTodo(paraDefinitivo){
     if (!gv('carrierNIF')) { ok=false; markField('carrierNIF', false); if(!firstBad) firstBad=document.getElementById('carrierNIF'); }
     if (!mat) { ok=false; if(!firstBad) firstBad=document.getElementById('plateTractor'); }
   }
-  if (pad.isEmpty()) { document.getElementById('sigHint').style.opacity=1; if (paraDefinitivo) { ok=false; if(!firstBad) firstBad=document.getElementById('sig'); } }
+  // La firma NO es obligatoria para el DeCA según la Resolución de 5 de junio
+  // de 2026 — se sigue pudiendo capturar (útil como prueba de entrega), pero
+  // no bloquea la emisión del documento definitivo.
+  if (pad.isEmpty()) { document.getElementById('sigHint').style.opacity=1; }
   if (!ok) { if(firstBad) firstBad.scrollIntoView({behavior:'smooth', block:'center'}); toast(paraDefinitivo ? 'Para el DeCA definitivo hacen falta: NIF remitente, NIF transportista y matrícula' : 'Revisa los campos marcados en rojo'); }
   return ok;
 }
@@ -539,7 +543,7 @@ function pdfDocDefinition(modo, deca, docNum){
     bdy.push({text:platesStr,fontSize:10.5,bold:true,color:'#000',characterSpacing:1,margin:[2,gv('driverName')?3:1,2,3]});
     return {stack:bdy, border:[true,true,true,true], fillColor:'#fff'};
   })();
-  content.push({table:{widths:['55%','45%'],body:[[ box(16,'Transportista', gv('carrierBlock')+(gv('carrierNIF')?'\nNIF: '+gv('carrierNIF'):'')), box16f ]]}, layout:lay, margin:[0,0,0,0]});
+  content.push({table:{widths:['55%','45%'],body:[[ box(16,'Transportista', gv('carrierBlock')+(gv('carrierNIF')?'\nNIF: '+gv('carrierNIF'):'')+(gv('carrierAuthNum')?'\nAutorización: '+gv('carrierAuthNum'):'')), box16f ]]}, layout:lay, margin:[0,0,0,0]});
   content.push(colorLine());
 
   // Mercancías — mismas casillas oficiales 6-12 que CMR Manager Pro, con relleno
@@ -695,7 +699,7 @@ document.getElementById('opt-sindeca').onclick = ()=> emitir('sin_deca');
 document.getElementById('dmCancel').onclick = ()=> document.getElementById('deca-modal').classList.remove('on');
 
 /* Guardado rápido local (borrador de trabajo, no el PDF) */
-const CAMPOS_BORRADOR = ['docNumInput','placeEmission','clientRef','senderBlock','senderNIF','rcvBlock','carrierBlock','carrierNIF','driverName','driverDNI','plateTractor','plateTrailer','senderInstr','observations','codAmount'];
+const CAMPOS_BORRADOR = ['docNumInput','placeEmission','clientRef','senderBlock','senderNIF','rcvBlock','carrierBlock','carrierNIF','carrierAuthNum','driverName','driverDNI','plateTractor','plateTrailer','senderInstr','observations','codAmount'];
 document.querySelector('.fab-save').onclick = ()=>{
   try {
     const data = {}; CAMPOS_BORRADOR.forEach(id => data[id] = gv(id)); data.goodsLines = goodsLines;
