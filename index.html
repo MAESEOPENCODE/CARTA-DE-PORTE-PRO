@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Porte Nacional — Nueva Carta de Porte</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet"/>
+<link rel="manifest" href="./manifest.json"/>
+<meta name="theme-color" content="#1a1209"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Porte Nacional"/>
+<link rel="apple-touch-icon" href="./icon-180.png"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23c4421a'/><text x='50' y='62' font-size='34' font-family='sans-serif' fill='white' text-anchor='middle' font-weight='bold'>PN</text></svg>"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/4.1.7/signature_pad.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.js"></script>
+<style>
+:root{
+  --bg:#f2ede3; --bg2:#faf8f3; --bg3:#e8e0d0; --line:#cdc5b4; --line2:#b0a894;
+  --dim:#7a6e5e; --mid:#4a3e2e; --snow:#1a1209;
+  --blue:#c4421a; --blue-l:#e0621e; --glow:rgba(196,66,26,.20);
+  --green-l:#0bb8a4; --r:16px; --r3:9px;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+:root:not([data-theme="light"]) { }
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1a1209; --bg2:#241a10; --bg3:#2e2214; --line:#3a2c1c; --line2:#4a3a26;
+    --dim:#a89880; --mid:#d8c8ac; --snow:#f5f0e8;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1a1209; --bg2:#241a10; --bg3:#2e2214; --line:#3a2c1c; --line2:#4a3a26;
+  --dim:#a89880; --mid:#d8c8ac; --snow:#f5f0e8;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--snow);overscroll-behavior:none;}
+#topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:linear-gradient(180deg,#221810,#1a1209);box-shadow:0 4px 16px rgba(0,0,0,.35);}
+.logo{display:flex;align-items:center;gap:9px;}
+.logo-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(145deg,#e0621e,#8a2d0e);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;color:#fff;}
+.logo-name{font-size:.85rem;font-weight:700;color:#f5f0e8;}
+.logo-sub{font-size:.5rem;color:rgba(245,240,232,.4);font-family:'JetBrains Mono',monospace;letter-spacing:.08em;}
+.chip{font-size:.6rem;font-family:'JetBrains Mono',monospace;color:#c8b8a0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:4px 9px;border-radius:20px;display:flex;align-items:center;gap:5px;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green-l);}
+main{max-width:520px;margin:0 auto;padding:16px 14px 110px;}
+.block{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);margin-bottom:14px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.06);}
+.bhead{display:flex;align-items:center;gap:8px;padding:11px 15px;border-bottom:1px solid var(--line);}
+.btag{font-family:'JetBrains Mono',monospace;font-size:.55rem;font-weight:700;padding:2px 8px;border-radius:5px;background:rgba(196,66,26,.14);color:var(--blue);border:1px solid rgba(196,66,26,.35);}
+.btitle{font-size:.82rem;font-weight:600;flex:1;}
+.bbody{padding:15px;}
+.fr{display:flex;flex-direction:column;gap:5px;margin-bottom:11px;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px;}
+label{font-size:.58rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--line2);color:var(--snow);border-radius:var(--r3);padding:9px 11px;font-size:.86rem;font-family:'Sora',sans-serif;outline:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--blue-l);box-shadow:0 0 0 3px var(--glow);}
+.qf-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px;}
+.qf-pill{font-size:.66rem;padding:5px 11px;border-radius:20px;background:rgba(196,66,26,.10);border:1px solid rgba(196,66,26,.3);color:var(--blue-l);cursor:pointer;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+.qf-pill.on{background:var(--blue-l);color:#fff;}
+.sig-box{border:1.5px solid var(--line2);border-radius:var(--r3);background:#fff;position:relative;min-height:150px;}
+.sig-box canvas{display:block;width:100%;height:150px;touch-action:none;}
+.sig-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'JetBrains Mono',monospace;font-size:.65rem;color:#b0a898;pointer-events:none;}
+.sig-clr{margin-top:7px;width:100%;padding:8px;border-radius:var(--r3);background:rgba(225,29,72,.06);border:1px solid rgba(225,29,72,.25);color:#e11d48;font-size:.76rem;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;}
+.photo-row{display:flex;gap:8px;}
+.photo-add{flex:1;height:64px;border-radius:var(--r3);border:1.5px dashed var(--line2);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:.7rem;cursor:pointer;}
+.fab-row{position:fixed;bottom:calc(16px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);width:calc(100% - 28px);max-width:520px;display:flex;gap:9px;z-index:40;}
+.fab{flex:1;height:52px;border:none;border-radius:14px;background:linear-gradient(180deg,#e87020,#a83010);color:#fff;font-size:.85rem;font-weight:700;letter-spacing:.03em;box-shadow:0 8px 26px rgba(196,66,26,.4);cursor:pointer;}
+.fab:active{transform:translateY(2px);}
+.fab-save{flex:0 0 52px;border:none;border-radius:14px;background:linear-gradient(180deg,#14a892,#0a6e62);color:#fff;font-size:1.1rem;box-shadow:0 6px 18px rgba(14,138,122,.4);cursor:pointer;}
+.hint{font-size:.68rem;color:var(--dim);text-align:center;margin-top:2px;}
+.chip.amber{background:rgba(146,64,14,.14);border-color:rgba(146,64,14,.35);color:#c05a10;}
+.chip.amber .dot{background:#c05a10;}
+.chip.green{background:rgba(14,138,122,.14);border-color:rgba(14,138,122,.35);color:#0bb8a4;}
+.chip.green .dot{background:#0bb8a4;}
+.field-error{border-color:#e11d48 !important;box-shadow:0 0 0 3px rgba(225,29,72,.15) !important;}
+.fab:disabled{opacity:.5;cursor:default;}
+#deca-modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:80;display:none;align-items:flex-end;justify-content:center;}
+#deca-modal.on{display:flex;}
+.dm-sheet{width:100%;max-width:520px;background:var(--bg2);border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 30px rgba(0,0,0,.25);}
+.dm-sheet h3{font-size:.95rem;margin-bottom:8px;}
+.dm-sheet p{font-size:.78rem;color:var(--dim);line-height:1.5;margin-bottom:14px;}
+.dm-btns{display:flex;gap:9px;}
+.dm-btns button{flex:1;height:46px;border:none;border-radius:11px;font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;}
+.dm-cancel{background:var(--bg3);color:var(--mid);}
+.dm-ok{background:linear-gradient(180deg,#e87020,#a83010);color:#fff;}
+.dm-opt{display:flex;align-items:flex-start;gap:11px;padding:12px 13px;border-radius:11px;background:var(--bg3);border:1px solid var(--line2);margin-bottom:8px;cursor:pointer;}
+.dm-opt b{font-size:.82rem;display:block;margin-bottom:2px;}
+.dm-opt small{font-size:.7rem;color:var(--dim);font-weight:400;line-height:1.4;}
+.dm-ico{font-size:1.3rem;flex-shrink:0;}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1a1209;color:#f5f0e8;padding:10px 16px;border-radius:10px;font-size:.78rem;z-index:90;opacity:0;transition:opacity .2s;pointer-events:none;max-width:85%;text-align:center;}
+#toast.on{opacity:1;}
+#tabs{position:sticky;top:calc(56px + env(safe-area-inset-top,0px));z-index:49;display:flex;background:var(--bg2);border-bottom:1px solid var(--line);}
+.tab{flex:1;text-align:center;padding:11px 0;font-size:.76rem;font-weight:600;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent;}
+.tab.active{color:var(--blue-l);border-color:var(--blue-l);}
+.panel{display:none;}
+.panel.active{display:block;}
+.hitem{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-bottom:9px;display:flex;align-items:center;gap:11px;}
+.hico{width:36px;height:36px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.9rem;}
+.hico.amber{background:rgba(146,64,14,.14);}
+.hico.green{background:rgba(14,138,122,.14);}
+.hinfo{flex:1;min-width:0;}
+.hnum{font-size:.82rem;font-weight:700;}
+.hsub{font-size:.7rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hbadge{font-size:.58rem;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:5px;font-weight:700;flex-shrink:0;}
+.hbadge.amber{background:rgba(146,64,14,.14);color:#c05a10;}
+.hbadge.green{background:rgba(14,138,122,.14);color:#0bb8a4;}
+.hdel{width:28px;height:28px;border:none;border-radius:7px;background:rgba(225,29,72,.08);color:#e11d48;cursor:pointer;flex-shrink:0;}
+.hempty{text-align:center;padding:50px 20px;color:var(--dim);font-size:.82rem;}
+.btag.r{color:#0f766e;background:rgba(15,118,110,.12);border-color:rgba(15,118,110,.3);}
+.btag.b{color:#1e40af;background:rgba(30,64,175,.12);border-color:rgba(30,64,175,.3);}
+.grow{border:1px solid var(--line2);border-radius:10px;padding:9px;margin-bottom:8px;background:var(--bg);}
+.grow-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.grow-grid input{font-size:.78rem;padding:7px 8px;}
+.grow-del{margin-top:6px;font-size:.68rem;color:#e11d48;text-align:right;cursor:pointer;}
+.grow-num{font-size:.62rem;color:var(--dim);font-family:'JetBrains Mono',monospace;margin-bottom:5px;}
+.photo-thumb{position:relative;width:64px;height:64px;border-radius:var(--r3);overflow:hidden;flex-shrink:0;}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;}
+.photo-thumb .rm{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;font-size:.65rem;line-height:1;cursor:pointer;}
+#pdf-modal{position:fixed;inset:0;background:#2a2018;z-index:95;display:none;flex-direction:column;}
+#pdf-modal.on{display:flex;}
+.pdf-bar{display:flex;align-items:center;gap:9px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 10px;background:#1a1209;flex-shrink:0;}
+.pdf-bar span{flex:1;color:#f5f0e8;font-size:.8rem;font-weight:600;}
+.pdf-bar button{border:none;border-radius:9px;padding:9px 14px;font-size:.78rem;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;}
+.pdf-save-btn{background:linear-gradient(180deg,#e87020,#a83010);color:#fff;}
+.pdf-close-btn{background:rgba(255,255,255,.1);color:#f5f0e8;}
+#pdfFrame{flex:1;border:none;width:100%;background:#525659;}
+</style>
+</head>
+<body>
+<div id="topbar">
+  <div class="logo">
+    <div class="logo-mark">PN</div>
+    <div>
+      <div class="logo-name">Porte Nacional</div>
+      <div class="logo-sub">CARTA DE PORTE · CHOFER</div>
+    </div>
+  </div>
+  <div class="chip"><span class="dot"></span> Offline listo</div>
+  <div class="chip" id="installChip" style="display:none;margin-left:7px;cursor:pointer;">⬇ Instalar</div>
+</div>
+<div id="tabs">
+  <div class="tab active" data-panel="nueva">Nueva carta</div>
+  <div class="tab" data-panel="historial">Historial <span id="histCount"></span></div>
+</div>
+
+<main>
+<div class="panel active" id="panel-nueva">
+  <div class="block">
+    <div class="bhead"><span class="btag">00</span><span class="btitle">Documento</span></div>
+    <div class="bbody">
+      <div class="fr2">
+        <div class="fr"><label>Nº documento</label><input id="docNumInput" placeholder="Se asigna al generar"/></div>
+        <div class="fr"><label>Lugar de emisión</label><input id="placeEmission" placeholder="Población"/></div>
+      </div>
+      <div class="fr"><label>Referencia cliente (opcional)</label><input id="clientRef" placeholder="Nº albarán / pedido"/></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="bhead"><span class="btag r">1</span><span class="btitle">Remitente / Cargador</span></div>
+    <div class="bbody">
+      <div class="fr"><label>Empresa y dirección</label><textarea id="senderBlock" rows="3" placeholder="Empresa Exportadora S.L.&#10;Calle Mayor, 45&#10;41500 Sevilla"></textarea></div>
+      <div class="fr"><label>NIF / CIF remitente</label><input id="senderNIF" placeholder="B12345678" style="text-transform:uppercase"/></div>
+      <div class="fr2">
+        <div class="fr"><label>Lugar de carga</label><input id="lugarCarga" placeholder="Población"/></div>
+        <div class="fr"><label>Fecha / hora carga</label><input id="fechaCarga" type="datetime-local"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="bhead"><span class="btag b">2</span><span class="btitle">Destinatario</span></div>
+    <div class="bbody">
+      <div class="fr"><label>Empresa y dirección</label><textarea id="rcvBlock" rows="3" placeholder="Importadora García S.L.&#10;Calle Transporte, 8&#10;28001 Madrid"></textarea></div>
+      <div class="fr2">
+        <div class="fr"><label>Lugar de entrega</label><input id="lugarEntrega" placeholder="Población"/></div>
+        <div class="fr"><label>Fecha / hora prevista</label><input id="fechaEntrega" type="datetime-local"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="bhead"><span class="btag">16</span><span class="btitle">Transportista</span></div>
+    <div class="bbody">
+      <div class="fr"><label>Empresa y dirección</label><textarea id="carrierBlock" rows="3" placeholder="Transportes García S.L.&#10;Calle Transporte, 8&#10;41007 Sevilla"></textarea></div>
+      <div class="fr"><label>NIF / CIF transportista</label><input id="carrierNIF" placeholder="B87654321" style="text-transform:uppercase"/></div>
+      <div class="fr2">
+        <div class="fr"><label>Conductor</label><input id="driverName" placeholder="Nombre y apellidos"/></div>
+        <div class="fr"><label>DNI conductor</label><input id="driverDNI" placeholder="12345678A" style="text-transform:uppercase"/></div>
+      </div>
+      <div class="fr2">
+        <div class="fr"><label>Matrícula tractora</label><input id="plateTractor" placeholder="1234 ABC" style="text-transform:uppercase" value="4521 KLM"/></div>
+        <div class="fr"><label>Matrícula remolque</label><input id="plateTrailer" placeholder="R-5678 BC" style="text-transform:uppercase"/></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="bhead"><span class="btag">6-12</span><span class="btitle">Mercancías</span></div>
+    <div class="bbody">
+      <div id="goodsRows"></div>
+      <div class="qf-pill" id="addGoodsRow" style="display:inline-block;margin-top:4px;">+ Añadir línea</div>
+      <div class="fr" style="margin-top:12px;"><label>Instrucciones del remitente</label><textarea id="senderInstr" rows="2" placeholder="Frágil, no apilar, etc."></textarea></div>
+      <div class="fr"><label>Reservas / observaciones</label><textarea id="observations" rows="2" placeholder="Incidencias, precintos, etc."></textarea></div>
+      <div class="fr2">
+        <div class="fr"><label>Franqueo</label><select id="freightTerms"><option value="">—</option><option value="PORT PAGADO">Port Pagado</option><option value="PORT DEBIDO">Port Debido</option><option value="CONTRA REEMBOLSO">Contra Reembolso</option></select></div>
+        <div class="fr"><label>Reembolso €</label><input id="codAmount" type="number" placeholder="0.00" step="0.01"/></div>
+      </div>
+      <label style="margin:10px 0 7px;display:block;">Fotos de la carga</label>
+      <div class="photo-row" id="photoRow">
+        <label class="photo-add">📷 Añadir<input type="file" accept="image/*" capture="environment" id="photoInput" style="display:none;"/></label>
+      </div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="bhead"><span class="btag">22-24</span><span class="btitle">Firma de entrega</span></div>
+    <div class="bbody">
+      <div class="sig-box"><canvas id="sig"></canvas><div class="sig-hint" id="sigHint">Firme aquí al entregar</div></div>
+      <div class="sig-clr" id="sigClr">Borrar firma</div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="panel-historial">
+  <div id="histList"></div>
+</div>
+</main>
+
+<div class="fab-row">
+  <button class="fab-save" title="Guardado rápido">💾</button>
+  <button class="fab" id="mainBtn">Generar Carta de Porte</button>
+</div>
+
+<div id="deca-modal">
+  <div class="dm-sheet">
+    <h3>Carta de Porte Nacional · DeCA</h3>
+    <p>Elige el modo de emisión (igual que en CMR Manager Pro):</p>
+    <div class="dm-opt" id="opt-definitivo">
+      <span class="dm-ico">✅</span>
+      <span><b>Definitivo — emitir DeCA</b><br><small>Genera QR y sube el PDF a Supabase (Ley 9/2025). No podrá sobreescribirse después.</small></span>
+    </div>
+    <div class="dm-opt" id="opt-borrador">
+      <span class="dm-ico">✏️</span>
+      <span><b>Borrador con aviso (sin DeCA)</b><br><small>PDF con marca "BORRADOR". Repite este paso cuando esté listo para emitir.</small></span>
+    </div>
+    <div class="dm-opt" id="opt-sindeca">
+      <span class="dm-ico">📄</span>
+      <span><b>Sin DeCA (hasta la implantación)</b><br><small>Carta de porte normal, sin QR ni aviso de borrador.</small></span>
+    </div>
+    <div class="dm-btns"><button class="dm-cancel" id="dmCancel">Cancelar</button></div>
+  </div>
+</div>
+
+<div id="pdf-modal">
+  <div class="pdf-bar"><span id="pdfModalTitle">Documento</span><button class="pdf-save-btn" id="pdfSaveBtn">Guardar</button><button class="pdf-close-btn" id="pdfCloseBtn">Cerrar</button></div>
+  <iframe id="pdfFrame"></iframe>
+</div>
+
+<div id="toast"></div>
+
+<script>
+window.SUPA_URL = 'https://yvmakyfjdqbdapotkryd.supabase.co';
+window.SUPA_KEY = 'sb_publishable_drG-vi00SGnw9BJj6FTrWA_x1u4XUec';
+window.SUPA_BUCKET = 'deca-pdfs';
+
+let fotos = [];
+let goodsLines = [{marks:'',qty:'',packing:'',desc:'',stat:'',weight:'',volume:''}];
+let _downloadsNs = null;
+(async ()=>{ try { if (window.claude && window.claude.use) _downloadsNs = await window.claude.use('downloads'); } catch(e){ _downloadsNs = null; } })();
+if ('serviceWorker' in navigator) { window.addEventListener('load', ()=> navigator.serviceWorker.register('./sw.js').catch(()=>{})); }
+
+let _deferredInstall = null;
+window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); _deferredInstall = e; document.getElementById('installChip').style.display = 'flex'; });
+document.getElementById('installChip').onclick = async ()=>{
+  if (!_deferredInstall) return;
+  _deferredInstall.prompt();
+  const { outcome } = await _deferredInstall.userChoice;
+  if (outcome === 'accepted') toast('✓ App instalada');
+  _deferredInstall = null;
+  document.getElementById('installChip').style.display = 'none';
+};
+window.addEventListener('appinstalled', ()=> document.getElementById('installChip').style.display = 'none');
+
+function toast(msg, ms){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(t._h); t._h = setTimeout(()=> t.classList.remove('on'), ms || 3200);
+}
+const gv = id => (document.getElementById(id)||{}).value || '';
+
+/* ── Tabs ── */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick = ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-' + t.dataset.panel).classList.add('active');
+    document.querySelector('.fab-row').style.display = t.dataset.panel === 'nueva' ? 'flex' : 'none';
+    if (t.dataset.panel === 'historial') renderHistorial();
+  };
+});
+
+/* ── IndexedDB ── */
+const DB_NAME = 'porteNacionalDB', STORE = 'cartas';
+function abrirDB(){
+  return new Promise((resolve, reject)=>{
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = ()=> req.result.createObjectStore(STORE, { keyPath:'id' });
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+async function guardarRegistro(rec){
+  try {
+    const db = await abrirDB();
+    return new Promise((res, rej)=>{
+      const tx = db.transaction(STORE,'readwrite');
+      tx.objectStore(STORE).put(rec);
+      tx.oncomplete = ()=> res(true);
+      tx.onerror = ()=> rej(tx.error);
+    });
+  } catch(e){ toast('No se pudo guardar en el historial local'); return false; }
+}
+async function listarRegistros(){
+  try {
+    const db = await abrirDB();
+    return new Promise((res)=>{
+      const out = [];
+      const tx = db.transaction(STORE,'readonly');
+      tx.objectStore(STORE).openCursor(null,'prev').onsuccess = (e)=>{
+        const cur = e.target.result;
+        if (cur) { out.push(cur.value); cur.continue(); } else res(out);
+      };
+    });
+  } catch(e){ return []; }
+}
+async function borrarRegistro(id){
+  try {
+    const db = await abrirDB();
+    return new Promise((res)=>{
+      const tx = db.transaction(STORE,'readwrite');
+      tx.objectStore(STORE).delete(id);
+      tx.oncomplete = ()=> res(true);
+    });
+  } catch(e){ return false; }
+}
+function recordActual(status, docNum){
+  return {
+    id: docNum, status, fecha: new Date().toISOString(),
+    senderBlock: gv('senderBlock'), rcvBlock: gv('rcvBlock'), carrierBlock: gv('carrierBlock'),
+    plateTractor: gv('plateTractor'), fotos: fotos.slice()
+  };
+}
+async function renderHistorial(){
+  const list = document.getElementById('histList');
+  const regs = await listarRegistros();
+  document.getElementById('histCount').textContent = regs.length ? ('(' + regs.length + ')') : '';
+  if (!regs.length) { list.innerHTML = '<div class="hempty">Aún no hay cartas de porte guardadas.</div>'; return; }
+  const meta = { definitivo:['green','🔒','DEFINITIVO'], borrador:['amber','📝','BORRADOR'], sin_deca:['amber','📄','SIN DECA'] };
+  list.innerHTML = regs.map(r=>{
+    const m = meta[r.status] || meta.borrador;
+    const fecha = new Date(r.fecha).toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const dest = (r.rcvBlock||'').split('\n')[0] || 'Sin destinatario';
+    return '<div class="hitem">'
+      + '<div class="hico ' + m[0] + '">' + m[1] + '</div>'
+      + '<div class="hinfo"><div class="hnum">' + (r.plateTractor || 'Sin matrícula') + '</div>'
+      + '<div class="hsub">' + dest + ' · ' + fecha + '</div></div>'
+      + '<span class="hbadge ' + m[0] + '">' + m[2] + '</span>'
+      + (r.status !== 'definitivo' ? '<button class="hdel" data-id="' + r.id + '">✕</button>' : '')
+      + '</div>';
+  }).join('');
+  list.querySelectorAll('.hdel').forEach(b=> b.onclick = async ()=>{ await borrarRegistro(b.dataset.id); renderHistorial(); toast('Registro eliminado del historial'); });
+}
+
+/* ── Fotos ── */
+const MAX_FOTOS = 4;
+function renderFotos(){
+  const row = document.getElementById('photoRow');
+  const addBtn = row.querySelector('label.photo-add');
+  row.querySelectorAll('.photo-thumb').forEach(t=>t.remove());
+  fotos.forEach((src,i)=>{
+    const div = document.createElement('div');
+    div.className = 'photo-thumb';
+    div.innerHTML = '<img src="'+src+'"/><button class="rm" data-i="'+i+'">✕</button>';
+    row.insertBefore(div, addBtn);
+  });
+  addBtn.style.display = fotos.length >= MAX_FOTOS ? 'none' : 'flex';
+  row.querySelectorAll('.rm').forEach(b=> b.onclick = ()=>{ fotos.splice(+b.dataset.i,1); renderFotos(); });
+}
+document.getElementById('photoInput').onchange = function(e){
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{ fotos.push(reader.result); renderFotos(); };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+};
+
+/* ── Mercancías: líneas dinámicas (casillas 6-12 oficiales) ── */
+function renderGoodsRows(){
+  const cont = document.getElementById('goodsRows');
+  cont.innerHTML = goodsLines.map((l,i)=>`
+    <div class="grow" data-i="${i}">
+      <div class="grow-num">Línea ${i+1}</div>
+      <div class="grow-grid">
+        <input class="gl-marks" placeholder="Marcas / Nº" value="${l.marks||''}"/>
+        <input class="gl-qty" type="number" placeholder="Bultos" value="${l.qty||''}"/>
+        <input class="gl-packing" placeholder="Clase embalaje" value="${l.packing||''}"/>
+        <input class="gl-desc" placeholder="Naturaleza mercancía" value="${l.desc||''}"/>
+        <input class="gl-weight" type="number" placeholder="Peso kg" value="${l.weight||''}"/>
+        <input class="gl-volume" type="number" placeholder="Volumen m³" value="${l.volume||''}"/>
+      </div>
+      ${goodsLines.length>1 ? '<div class="grow-del" data-del="'+i+'">Eliminar línea ✕</div>' : ''}
+    </div>`).join('');
+  cont.querySelectorAll('.grow').forEach(row=>{
+    const i = +row.dataset.i;
+    const bind = (cls,field)=> row.querySelector(cls).oninput = e=> goodsLines[i][field] = e.target.value;
+    bind('.gl-marks','marks'); bind('.gl-qty','qty'); bind('.gl-packing','packing');
+    bind('.gl-desc','desc'); bind('.gl-weight','weight'); bind('.gl-volume','volume');
+  });
+  cont.querySelectorAll('[data-del]').forEach(b=> b.onclick = ()=>{ goodsLines.splice(+b.dataset.del,1); renderGoodsRows(); });
+}
+document.getElementById('addGoodsRow').onclick = ()=>{ goodsLines.push({marks:'',qty:'',packing:'',desc:'',stat:'',weight:'',volume:''}); renderGoodsRows(); };
+renderGoodsRows();
+
+const canvas = document.getElementById('sig');
+function resize(){ canvas.width = canvas.offsetWidth * 2; canvas.height = canvas.offsetHeight * 2; canvas.getContext('2d').scale(2,2); }
+resize();
+const pad = new SignaturePad(canvas, { minWidth:1, maxWidth:2.4, penColor:'#1a1209' });
+canvas.addEventListener('pointerdown', ()=> document.getElementById('sigHint').style.opacity=0);
+document.getElementById('sigClr').onclick = ()=>{ pad.clear(); document.getElementById('sigHint').style.opacity=1; };
+
+/* ── Validación ── */
+function validNIFCIF(v){
+  v = (v||'').trim().toUpperCase();
+  if (!v) return true;
+  if (/^[0-9]{8}[A-Z]$/.test(v)) { const letras='TRWAGMYFPDXBNJZSQVHLCKE'; return letras[parseInt(v.slice(0,8),10)%23]===v[8]; }
+  return /^[A-HJNPQSUVW][0-9]{7}[0-9A-J]$/.test(v);
+}
+function validMatricula(v){ v=(v||'').trim().toUpperCase(); return /^[0-9]{4}[- ]?[A-Z]{3}$/.test(v) || /^[A-Z]{1,2}[- ]?[0-9]{4}[- ]?[A-Z]{2}$/.test(v); }
+function markField(id, ok){ const el = document.getElementById(id); if (el) el.classList.toggle('field-error', !ok); }
+
+/* DECA_REQUIRED (igual que CMR Manager Pro): NIF Remitente, NIF Transportista y Matrícula Tractora
+   son obligatorios para emitir el DeCA definitivo. Para borrador/sin DeCA no se exige nada. */
+function validarTodo(paraDefinitivo){
+  let ok = true, firstBad = null;
+  const check = (id, valid, siempre)=>{
+    markField(id, valid || !siempre);
+    if (siempre && !valid) { ok=false; if(!firstBad) firstBad=document.getElementById(id); }
+  };
+  check('senderNIF', validNIFCIF(gv('senderNIF')), false);
+  check('carrierNIF', validNIFCIF(gv('carrierNIF')), false);
+  const mat = validMatricula(gv('plateTractor'));
+  markField('plateTractor', mat);
+  if (paraDefinitivo) {
+    if (!gv('senderNIF')) { ok=false; markField('senderNIF', false); if(!firstBad) firstBad=document.getElementById('senderNIF'); }
+    if (!gv('carrierNIF')) { ok=false; markField('carrierNIF', false); if(!firstBad) firstBad=document.getElementById('carrierNIF'); }
+    if (!mat) { ok=false; if(!firstBad) firstBad=document.getElementById('plateTractor'); }
+  }
+  if (pad.isEmpty()) { document.getElementById('sigHint').style.opacity=1; if (paraDefinitivo) { ok=false; if(!firstBad) firstBad=document.getElementById('sig'); } }
+  if (!ok) { if(firstBad) firstBad.scrollIntoView({behavior:'smooth', block:'center'}); toast(paraDefinitivo ? 'Para el DeCA definitivo hacen falta: NIF remitente, NIF transportista y matrícula' : 'Revisa los campos marcados en rojo'); }
+  return ok;
+}
+
+/* ══ DeCA — Ley 9/2025: QR + subida a Supabase (idéntico a CMR Manager Pro) ══ */
+function _decaPrepare(docNum){
+  const uuid = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID() : 'deca-'+Date.now()+'-'+Math.random().toString(36).slice(2);
+  const fechaPrefix = new Date().toISOString().slice(0,10);
+  const fname = 'nacional_'+fechaPrefix+'_'+uuid+'.pdf';
+  const url = window.SUPA_URL+'/storage/v1/object/public/'+window.SUPA_BUCKET+'/'+fname;
+  let qrDataURL = null;
+  try {
+    const qr = qrcode(0,'M'); qr.addData(url); qr.make();
+    const count = qr.getModuleCount(), cell=6, margin=4, size=count*cell+margin*2;
+    const c = document.createElement('canvas'); c.width=size; c.height=size;
+    const ctx = c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,size,size); ctx.fillStyle='#000';
+    for (let r=0;r<count;r++) for (let cIdx=0;cIdx<count;cIdx++) if (qr.isDark(r,cIdx)) ctx.fillRect(margin+cIdx*cell, margin+r*cell, cell, cell);
+    qrDataURL = c.toDataURL('image/png');
+  } catch(e){ console.warn('QR DeCA error:', e); }
+  return { uuid, fname, url, qrDataURL };
+}
+async function _decaSubirPDF(blob, deca){
+  if (!deca) return { ok:true };
+  try {
+    if (blob.size > 4.5*1024*1024) toast('⚠ PDF pesa más de 4.5MB, revisa las fotos', 5000);
+    const endpoint = window.SUPA_URL+'/storage/v1/object/'+window.SUPA_BUCKET+'/'+deca.fname;
+    const resp = await fetch(endpoint, { method:'PUT', headers:{'Authorization':'Bearer '+window.SUPA_KEY,'Content-Type':'application/pdf'}, body:blob });
+    if (!resp.ok) throw new Error('HTTP '+resp.status+': '+await resp.text().catch(()=>resp.statusText));
+    return { ok:true };
+  } catch(e){ console.error('Error subiendo DeCA:', e); toast('⚠ DeCA no publicado: '+(e.message||e), 5000); return { ok:false, error:e }; }
+}
+
+/* ── Documento: mismas casillas/estilo/campos que CMR Manager Pro, modelo nacional, 3 copias ── */
+function pdfDocDefinition(modo, deca, docNum){
+  const lay = { hLineWidth:()=>0.5, vLineWidth:()=>0.5, hLineColor:()=>'#000', vLineColor:()=>'#000' };
+  const spacer = (h)=>({text:'',margin:[0,h,0,0]});
+  const fmtDT = s => s ? new Date(s).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '—';
+  const copies = [ {lbl:'COPIA 1', sub:'REMITENTE', AC:'#0f766e'}, {lbl:'COPIA 2', sub:'DESTINATARIO', AC:'#1e40af'}, {lbl:'COPIA 3', sub:'TRANSPORTISTA', AC:'#7c3aed'} ];
+  const content = [];
+
+  copies.forEach((cp, ci)=>{
+  const AC = cp.AC;
+  const colorLine = ()=>({ table:{widths:['*'],body:[[{text:'',border:[false,false,false,false],fillColor:AC,margin:[0,1.5,0,1.5]}]]}, layout:'noBorders', margin:[0,0,0,0] });
+  const box = (cas,title,cnt)=>{
+    const lines = (cnt||'—').split('\n');
+    const bdy = [{columns:[{text:String(cas),fontSize:6,bold:true,color:'#888',width:'auto'},{text:title,fontSize:5.5,color:'#888',width:'*',alignment:'right'}],margin:[2,1,2,0]}];
+    if (lines[0]) bdy.push({text:lines[0],fontSize:8.5,bold:true,color:'#000',margin:[2,0,2,0]});
+    if (lines.length>1) bdy.push({text:lines.slice(1).join('\n'),fontSize:7.5,color:'#111',margin:[2,0,2,1],lineHeight:1.2});
+    if (!bdy[1]) bdy.push({text:'',margin:[2,2,2,2]});
+    bdy.push({text:'',margin:[0,4,0,0]});
+    return { stack:bdy, border:[true,true,true,true], fillColor:'#fff', margin:[0,0,0,0] };
+  };
+
+  content.push({ columns:[
+    {stack:[
+      {text:'CARTA DE PORTE NACIONAL', fontSize:12, bold:true, color:'#000'},
+      {text:'Ley 15/2009 · Orden FOM/1882/2012' + (modo!=='sin_deca' ? ' · DeCA Ley 9/2025' : ''), fontSize:5.5, color:'#888'},
+      {text:'Nº '+docNum+'  ·  '+new Date().toLocaleDateString('es-ES')+(gv('placeEmission')?' — '+gv('placeEmission'):''), fontSize:6.5, color:'#666', margin:[0,1,0,0]}
+    ]},
+    {stack:[ {text:cp.lbl, fontSize:9, bold:true, color:AC, alignment:'right'}, {text:cp.sub, fontSize:5.5, color:'#555', alignment:'right'} ]}
+  ], margin:[0,0,0,4]});
+  content.push(colorLine());
+
+  content.push({table:{widths:['*','*'],body:[[
+    box(1,'Remitente', gv('senderBlock')+(gv('senderNIF')?'\nNIF: '+gv('senderNIF'):'')+'\n'+gv('lugarCarga')+' · '+fmtDT(gv('fechaCarga'))),
+    box(2,'Destinatario', gv('rcvBlock')+'\n'+gv('lugarEntrega')+' · '+fmtDT(gv('fechaEntrega')))
+  ]]}, layout:lay, margin:[0,0,0,0]});
+  content.push(colorLine());
+
+  const platesStr = [gv('plateTractor'), gv('plateTrailer')].filter(Boolean).join('  /  ') || '—';
+  const box16f = (()=>{
+    const bdy=[{columns:[{text:'16f',fontSize:6,bold:true,color:'#888',width:'auto'},{text:'Conductor · Vehículo',fontSize:5.5,color:'#888',width:'*',alignment:'right'}],margin:[2,1,2,0]}];
+    if (gv('driverName')) bdy.push({text:gv('driverName'),fontSize:8.5,bold:true,color:'#000',margin:[2,0,2,0]});
+    if (gv('driverDNI')) bdy.push({text:'DNI: '+gv('driverDNI'),fontSize:7,color:'#444',margin:[2,0,2,0]});
+    bdy.push({text:platesStr,fontSize:10.5,bold:true,color:'#000',characterSpacing:1,margin:[2,gv('driverName')?3:1,2,3]});
+    return {stack:bdy, border:[true,true,true,true], fillColor:'#fff'};
+  })();
+  content.push({table:{widths:['55%','45%'],body:[[ box(16,'Transportista', gv('carrierBlock')+(gv('carrierNIF')?'\nNIF: '+gv('carrierNIF'):'')), box16f ]]}, layout:lay, margin:[0,0,0,0]});
+  content.push(colorLine());
+
+  // Mercancías — mismas casillas oficiales 6-12 que CMR Manager Pro, con relleno
+  // hasta un mínimo de 7 filas (igual que el documento real) para que la tabla
+  // ocupe siempre el mismo alto, tenga o no muchas líneas cargadas.
+  const gl = goodsLines.filter(l=> l.marks||l.qty||l.packing||l.desc||l.weight||l.volume);
+  const rows = gl.length ? gl.slice() : [];
+  while (rows.length < 7) rows.push({});
+  const goodsHeader = ['6 Marcas','7 Bultos','8 Embalaje','9 Naturaleza mercancía','10 N.Est.','11 Peso kg','12 Volumen'].map(t=>
+    ({text:t,fontSize:5.5,bold:true,color:'#000',fillColor:'#e8e8e8',margin:[3,2,3,2],alignment:'center'}));
+  const goodsBody = [goodsHeader];
+  rows.forEach(l=> goodsBody.push([
+    {text:l.marks||' ',fontSize:7,margin:[2,4,2,4]}, {text:l.qty||' ',fontSize:7,margin:[2,4,2,4],alignment:'center'},
+    {text:l.packing||' ',fontSize:7,margin:[2,4,2,4]}, {text:l.desc||' ',fontSize:7,bold:!!l.desc,margin:[2,4,2,4]},
+    {text:l.stat||' ',fontSize:7,margin:[2,4,2,4],alignment:'center'}, {text:l.weight?l.weight+' kg':' ',fontSize:7,margin:[2,4,2,4],alignment:'center'},
+    {text:l.volume||' ',fontSize:7,margin:[2,4,2,4],alignment:'center'}
+  ]));
+  const totalW = rows.reduce((s,l)=>s+(parseFloat(l.weight)||0),0);
+  goodsBody.push([{text:'TOTAL',fontSize:6,bold:true,colSpan:5,margin:[3,4,3,4]},{},{},{},{},{text:totalW?totalW+' kg':' ',fontSize:7,bold:true,alignment:'center',margin:[2,4,2,4]},{text:' '}]);
+  content.push({table:{widths:['12%','9%','13%','30%','9%','13%','14%'],body:goodsBody}, layout:lay, margin:[0,0,0,0]});
+  content.push(colorLine());
+
+  // Instrucciones/reservas y franqueo/reembolso se muestran siempre (aunque
+  // estén vacías), igual que las casillas fijas del documento oficial —
+  // así el alto de la página no cambia según lo que se rellene.
+  content.push({table:{widths:['*','*'],body:[[
+    box(13,'Instrucciones del remitente', gv('senderInstr')||'—'),
+    box(18,'Reservas y observaciones', gv('observations')||'—')
+  ]]}, layout:lay, margin:[0,0,0,0]});
+  content.push(colorLine());
+
+  content.push({table:{widths:['*','auto'],body:[[ box(14,'Franqueo', gv('freightTerms')||'—'), box(14,'Reembolso €', gv('codAmount')||'0') ]]}, layout:lay, margin:[0,0,0,0]});
+  content.push(colorLine());
+
+  (function(){
+    const emisionStack = [{columns:[{text:'21',fontSize:6,bold:true,color:'#888',width:'auto'},{text:'Lugar y fecha de emisión',fontSize:5.5,color:'#888',width:'*',alignment:'right'}],margin:[2,1,2,0]}];
+    emisionStack.push({text:(gv('placeEmission')||gv('lugarCarga')||'—')+' · '+new Date().toLocaleString('es-ES'), fontSize:8.5, bold:true, color:'#000', margin:[2,0,2,0]});
+    if (deca && deca.qrDataURL) {
+      emisionStack.push({columns:[{text:'',width:'*'},{stack:[
+        {text:'DeCA · Ley 9/2025',fontSize:4.5,color:'#888',alignment:'center',margin:[0,2,0,1]},
+        {image:deca.qrDataURL,width:44,height:44,alignment:'center'}
+      ],width:56}],margin:[0,2,0,0]});
+    } else if (modo === 'borrador') {
+      emisionStack.push({text:'BORRADOR — Sin DeCA emitido', fontSize:6, bold:true, color:'#b91c1c', margin:[2,4,2,0]});
+    }
+    emisionStack.push(spacer(4));
+    content.push({table:{widths:['*'],body:[[{stack:emisionStack, border:[true,true,true,true], fillColor:'#fff'}]]}, layout:lay, margin:[0,0,0,0]});
+  })();
+  content.push(colorLine());
+
+  const hasSig = !pad.isEmpty();
+  const sig22 = {stack:[{text:[{text:'22 ',bold:true},{text:'Firma Remitente'}],fontSize:6.5,color:'#000',margin:[3,3,3,3]},{text:(gv('senderBlock')||'').split('\n')[0],fontSize:6.5,alignment:'center',color:'#888',margin:[0,32,0,2]}],border:[true,true,true,true],fillColor:'#fff'};
+  const sig23 = {stack:[{text:[{text:'23 ',bold:true},{text:'Firma Transportista'}],fontSize:6.5,color:'#000',margin:[3,3,3,3]},{text:'Matrícula: '+(gv('plateTractor')||'—'),fontSize:6.5,alignment:'center',color:'#888',margin:[0,32,0,2]}],border:[true,true,true,true],fillColor:'#fff'};
+  const sig24stack = [{text:[{text:'24 ',bold:true},{text:'Firma Destinatario'}],fontSize:6.5,color:'#000',margin:[3,3,3,3]}];
+  if (hasSig) sig24stack.push({image:pad.toDataURL(),width:110,height:50,alignment:'center',margin:[0,2,0,0]});
+  else sig24stack.push({text:'',margin:[0,32,0,0]});
+  sig24stack.push({text:(gv('rcvBlock')||'').split('\n')[0],fontSize:6.5,alignment:'center',color:'#888',margin:[0,1,0,2]});
+  content.push({table:{widths:['*','*','*'],body:[[sig22,sig23,{stack:sig24stack,border:[true,true,true,true],fillColor:'#fff'}]]}, layout:lay, margin:[0,0,0,2]});
+
+  const clausulasTexto = `Este contrato de transporte se rige por la Ley 15/2009, de 11 de noviembre, del contrato de transporte terrestre de mercancías, y la Orden FOM/1882/2012.
+1. El porteador responde de la pérdida total o parcial y de las averías desde la recepción hasta la entrega.
+2. La indemnización por pérdida o avería no excederá del valor de mercado de la mercancía o 1/3 del IPREM por kilogramo.
+3. El retraso en la entrega dará lugar a indemnización si se ha formulado reserva en el momento de la entrega.
+4. Las reclamaciones prescribirán al año, salvo dolo o culpa grave (3 años).
+5. El destinatario deberá manifestar las reservas al tiempo de la entrega o en los siete días siguientes.
+6. La carta de porte deberá ser firmada por remitente, transportista y destinatario.`;
+  const lineas = clausulasTexto.split('\n').map(l=>l.trim()).filter(Boolean);
+  const mid = Math.ceil(lineas.length/2);
+  const mkP = arr => arr.map(t=>({text:t,fontSize:5,color:'#444',lineHeight:1.25,margin:[0,0,0,1]}));
+  content.push({table:{widths:['*'],body:[[{stack:[
+    {text:'CLÁUSULAS LEGALES (Ley 15/2009 y Orden FOM/1882/2012)', fontSize:5.5, bold:true, color:'#000', margin:[0,0,0,2]},
+    {columns:[{stack:mkP(lineas.slice(0,mid)),width:'*'},{stack:mkP(lineas.slice(mid)),width:'*'}], columnGap:8}
+  ], border:[true,true,true,true], fillColor:'#fff', margin:[4,3,4,3]}]]}, layout:'noBorders', margin:[0,3,0,0]});
+  content.push({columns:[
+    {text:'CARTA PORTE NAC. '+docNum+(gv('clientRef')?' · Ref: '+gv('clientRef'):''), fontSize:5, color:'#999'},
+    {text:'Porte Nacional · Documento generado conforme a la Ley 15/2009', fontSize:5, color:'#bbb', alignment:'right'}
+  ], margin:[0,2,0,1]});
+  if (ci < copies.length - 1) content.push({text:'', pageBreak:'after'});
+  });
+
+  return {
+    pageSize:'A4', pageMargins:[18,10,18,8], compress:false, content,
+    defaultStyle:{font:'Roboto', fontSize:10, color:'#111'},
+    info:{title:'Carta Porte Nacional '+docNum, author:'Porte Nacional', subject:'Carta de Porte Nacional'}
+  };
+}
+
+function generarBlob(modo, deca, docNum){
+  return new Promise((resolve, reject)=>{ try { pdfMake.createPdf(pdfDocDefinition(modo, deca, docNum)).getBlob(resolve); } catch(e){ reject(e); } });
+}
+function blobToDataURL(blob){
+  return new Promise((resolve, reject)=>{ const reader = new FileReader(); reader.onload = ()=> resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(blob); });
+}
+let _pdfModalBlob = null, _pdfModalName = '', _pdfObjectUrl = null;
+async function mostrarPDF(blob, filename, titulo){
+  _pdfModalBlob = blob; _pdfModalName = filename;
+  document.getElementById('pdfModalTitle').textContent = titulo || filename;
+  if (_pdfObjectUrl) { try { URL.revokeObjectURL(_pdfObjectUrl); } catch(e){} }
+  // blob: es lo correcto en el sitio ya desplegado (sin límite de tamaño);
+  // solo si el navegador lo bloquea (p.ej. la vista previa de Claude) caemos
+  // a data: URI como alternativa.
+  try {
+    _pdfObjectUrl = URL.createObjectURL(blob);
+    document.getElementById('pdfFrame').src = _pdfObjectUrl;
+  } catch(e) {
+    try { document.getElementById('pdfFrame').src = await blobToDataURL(blob); }
+    catch(e2){ toast('No se pudo previsualizar el PDF, pero puedes guardarlo'); }
+  }
+  document.getElementById('pdf-modal').classList.add('on');
+}
+document.getElementById('pdfCloseBtn').onclick = ()=>{
+  document.getElementById('pdf-modal').classList.remove('on');
+  document.getElementById('pdfFrame').src = 'about:blank';
+  if (_pdfObjectUrl) { try { URL.revokeObjectURL(_pdfObjectUrl); } catch(e){} _pdfObjectUrl = null; }
+};
+document.getElementById('pdfSaveBtn').onclick = ()=>{ if (_pdfModalBlob) ofrecerDescarga(_pdfModalBlob, _pdfModalName); };
+async function ofrecerDescarga(blob, filename){
+  if (_downloadsNs) {
+    try { const res = await _downloadsNs.save({ filename, data: blob }); toast(res.status === 'saved' ? '✓ PDF guardado' : '✓ PDF enviado'); return true; }
+    catch(e) { if (e && e.code === 'declined') { toast('Descarga cancelada'); return false; } toast('No se pudo guardar el PDF ('+((e&&e.code)||'error')+')'); return false; }
+  }
+  toast('Usa el menú del visor (⋮ o compartir) para guardar este PDF');
+  return false;
+}
+
+function docNumGen(){ return 'PN-'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'-'+Math.random().toString(36).slice(2,6).toUpperCase(); }
+
+async function emitir(modo){
+  document.getElementById('deca-modal').classList.remove('on');
+  const docNum = gv('docNumInput') || docNumGen();
+  document.getElementById('docNumInput').value = docNum;
+  const btn = document.getElementById('mainBtn');
+  btn.disabled = true; btn.textContent = 'Generando…';
+  try {
+    let deca = null;
+    if (modo === 'definitivo') deca = _decaPrepare(docNum);
+    const blob = await generarBlob(modo, deca, docNum);
+    const titulo = modo==='definitivo' ? 'Definitivo · DeCA' : modo==='borrador' ? 'Borrador' : 'Sin DeCA';
+    mostrarPDF(blob, (modo==='definitivo'?'CARTA_PORTE_NAC_':modo==='borrador'?'borrador_':'carta_')+docNum+'.pdf', titulo);
+    await guardarRegistro(recordActual(modo, docNum));
+    if (modo === 'definitivo') {
+      _decaSubirPDF(blob, deca).then(res=>{ if (res.ok) toast('✓ DeCA publicado online', 3500); });
+      try { localStorage.removeItem('porteNacionalBorrador'); } catch(e){}
+    }
+  } catch(e) { toast('Error al generar el PDF: '+e.message); }
+  btn.disabled = false; btn.textContent = 'Generar Carta de Porte';
+}
+
+document.getElementById('mainBtn').onclick = function(){ if (!validarTodo(false)) return; document.getElementById('deca-modal').classList.add('on'); };
+document.getElementById('opt-definitivo').onclick = ()=>{ if (validarTodo(true)) emitir('definitivo'); else document.getElementById('deca-modal').classList.remove('on'); };
+document.getElementById('opt-borrador').onclick = ()=> emitir('borrador');
+document.getElementById('opt-sindeca').onclick = ()=> emitir('sin_deca');
+document.getElementById('dmCancel').onclick = ()=> document.getElementById('deca-modal').classList.remove('on');
+
+/* Guardado rápido local (borrador de trabajo, no el PDF) */
+const CAMPOS_BORRADOR = ['docNumInput','placeEmission','clientRef','senderBlock','senderNIF','rcvBlock','carrierBlock','carrierNIF','driverName','driverDNI','plateTractor','plateTrailer','senderInstr','observations','codAmount'];
+document.querySelector('.fab-save').onclick = ()=>{
+  try {
+    const data = {}; CAMPOS_BORRADOR.forEach(id => data[id] = gv(id)); data.goodsLines = goodsLines;
+    localStorage.setItem('porteNacionalBorrador', JSON.stringify(data));
+    toast('✓ Datos guardados en este dispositivo');
+  } catch(e){ toast('No se pudo guardar localmente'); }
+};
+(function restaurarBorrador(){
+  try {
+    const raw = localStorage.getItem('porteNacionalBorrador');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    CAMPOS_BORRADOR.forEach(id => { if (data[id] && document.getElementById(id)) document.getElementById(id).value = data[id]; });
+    if (data.goodsLines && data.goodsLines.length) { goodsLines = data.goodsLines; renderGoodsRows(); }
+    toast('Se recuperaron datos guardados anteriormente', 3500);
+  } catch(e){}
+})();
+</script>
+</body>
+</html>
