@@ -218,10 +218,26 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue-l);box-shadow:0 
   </div>
 
   <div class="block">
-    <div class="bhead"><span class="btag">22-24</span><span class="btitle">Firma de entrega</span></div>
+    <div class="bhead"><span class="btag">22</span><span class="btitle">Firma Remitente</span></div>
     <div class="bbody">
-      <div class="sig-box"><canvas id="sig"></canvas><div class="sig-hint" id="sigHint">Firme aquí al entregar</div></div>
-      <div class="sig-clr" id="sigClr">Borrar firma</div>
+      <div class="sig-box"><canvas id="sigRem"></canvas><div class="sig-hint" id="sigRemHint">Firma del remitente al cargar</div></div>
+      <div class="sig-clr" id="sigRemClr">Borrar firma</div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="bhead"><span class="btag">23</span><span class="btitle">Firma Transportista</span></div>
+    <div class="bbody">
+      <div class="sig-box"><canvas id="sigTrans"></canvas><div class="sig-hint" id="sigTransHint">Firma del chofer al recoger la carga</div></div>
+      <div class="sig-clr" id="sigTransClr">Borrar firma</div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="bhead"><span class="btag">24</span><span class="btitle">Firma Destinatario</span></div>
+    <div class="bbody">
+      <div class="sig-box"><canvas id="sigDest"></canvas><div class="sig-hint" id="sigDestHint">Firma del destinatario al entregar</div></div>
+      <div class="sig-clr" id="sigDestClr">Borrar firma</div>
     </div>
   </div>
 </div>
@@ -428,12 +444,18 @@ function renderGoodsRows(){
 document.getElementById('addGoodsRow').onclick = ()=>{ goodsLines.push({marks:'',qty:'',packing:'',desc:'',stat:'',weight:'',volume:''}); renderGoodsRows(); };
 renderGoodsRows();
 
-const canvas = document.getElementById('sig');
-function resize(){ canvas.width = canvas.offsetWidth * 2; canvas.height = canvas.offsetHeight * 2; canvas.getContext('2d').scale(2,2); }
-resize();
-const pad = new SignaturePad(canvas, { minWidth:1, maxWidth:2.4, penColor:'#1a1209' });
-canvas.addEventListener('pointerdown', ()=> document.getElementById('sigHint').style.opacity=0);
-document.getElementById('sigClr').onclick = ()=>{ pad.clear(); document.getElementById('sigHint').style.opacity=1; };
+/* Tres firmas independientes: remitente (22), transportista (23), destinatario (24) */
+function crearFirma(canvasId, hintId, clrId){
+  const canvas = document.getElementById(canvasId);
+  canvas.width = canvas.offsetWidth * 2; canvas.height = canvas.offsetHeight * 2; canvas.getContext('2d').scale(2,2);
+  const pad = new SignaturePad(canvas, { minWidth:1, maxWidth:2.4, penColor:'#1a1209' });
+  canvas.addEventListener('pointerdown', ()=> document.getElementById(hintId).style.opacity=0);
+  document.getElementById(clrId).onclick = ()=>{ pad.clear(); document.getElementById(hintId).style.opacity=1; };
+  return pad;
+}
+const padRem = crearFirma('sigRem','sigRemHint','sigRemClr');
+const padTrans = crearFirma('sigTrans','sigTransHint','sigTransClr');
+const padDest = crearFirma('sigDest','sigDestHint','sigDestClr');
 
 /* ── Validación ── */
 function validNIFCIF(v){
@@ -465,7 +487,11 @@ function validarTodo(paraDefinitivo){
   // La firma NO es obligatoria para el DeCA según la Resolución de 5 de junio
   // de 2026 — se sigue pudiendo capturar (útil como prueba de entrega), pero
   // no bloquea la emisión del documento definitivo.
-  if (pad.isEmpty()) { document.getElementById('sigHint').style.opacity=1; }
+  // Ninguna de las 3 firmas es obligatoria para el DeCA (no lo exige la
+  // normativa), así que solo mostramos el aviso visual si están vacías.
+  if (padRem.isEmpty()) document.getElementById('sigRemHint').style.opacity=1;
+  if (padTrans.isEmpty()) document.getElementById('sigTransHint').style.opacity=1;
+  if (padDest.isEmpty()) document.getElementById('sigDestHint').style.opacity=1;
   if (!ok) { if(firstBad) firstBad.scrollIntoView({behavior:'smooth', block:'center'}); toast(paraDefinitivo ? 'Para el DeCA definitivo hacen falta: NIF remitente, NIF transportista y matrícula' : 'Revisa los campos marcados en rojo'); }
   return ok;
 }
@@ -594,14 +620,17 @@ function pdfDocDefinition(modo, deca, docNum){
   })();
   content.push(colorLine());
 
-  const hasSig = !pad.isEmpty();
-  const sig22 = {stack:[{text:[{text:'22 ',bold:true},{text:'Firma Remitente'}],fontSize:6.5,color:'#000',margin:[3,3,3,3]},{text:(gv('senderBlock')||'').split('\n')[0],fontSize:6.5,alignment:'center',color:'#888',margin:[0,32,0,2]}],border:[true,true,true,true],fillColor:'#fff'};
-  const sig23 = {stack:[{text:[{text:'23 ',bold:true},{text:'Firma Transportista'}],fontSize:6.5,color:'#000',margin:[3,3,3,3]},{text:'Matrícula: '+(gv('plateTractor')||'—'),fontSize:6.5,alignment:'center',color:'#888',margin:[0,32,0,2]}],border:[true,true,true,true],fillColor:'#fff'};
-  const sig24stack = [{text:[{text:'24 ',bold:true},{text:'Firma Destinatario'}],fontSize:6.5,color:'#000',margin:[3,3,3,3]}];
-  if (hasSig) sig24stack.push({image:pad.toDataURL(),width:110,height:50,alignment:'center',margin:[0,2,0,0]});
-  else sig24stack.push({text:'',margin:[0,32,0,0]});
-  sig24stack.push({text:(gv('rcvBlock')||'').split('\n')[0],fontSize:6.5,alignment:'center',color:'#888',margin:[0,1,0,2]});
-  content.push({table:{widths:['*','*','*'],body:[[sig22,sig23,{stack:sig24stack,border:[true,true,true,true],fillColor:'#fff'}]]}, layout:lay, margin:[0,0,0,2]});
+  const firmaBox = (cas, titulo, pad, nombre) => {
+    const stack = [{text:[{text:cas+' ',bold:true},{text:titulo}],fontSize:6.5,color:'#000',margin:[3,3,3,3]}];
+    if (!pad.isEmpty()) stack.push({image:pad.toDataURL(),width:100,height:44,alignment:'center',margin:[0,2,0,0]});
+    else stack.push({text:'',margin:[0,30,0,0]});
+    stack.push({text:nombre||'',fontSize:6.5,alignment:'center',color:'#888',margin:[0,1,0,2]});
+    return {stack, border:[true,true,true,true], fillColor:'#fff'};
+  };
+  const sig22 = firmaBox(22,'Firma Remitente', padRem, (gv('senderBlock')||'').split('\n')[0]);
+  const sig23 = firmaBox(23,'Firma Transportista', padTrans, 'Matrícula: '+(gv('plateTractor')||'—'));
+  const sig24 = firmaBox(24,'Firma Destinatario', padDest, (gv('rcvBlock')||'').split('\n')[0]);
+  content.push({table:{widths:['*','*','*'],body:[[sig22,sig23,sig24]]}, layout:lay, margin:[0,0,0,2]});
 
   const clausulasTexto = `Este contrato de transporte se rige por la Ley 15/2009, de 11 de noviembre, del contrato de transporte terrestre de mercancías, y la Orden FOM/1882/2012.
 1. El porteador responde de la pérdida total o parcial y de las averías desde la recepción hasta la entrega.
