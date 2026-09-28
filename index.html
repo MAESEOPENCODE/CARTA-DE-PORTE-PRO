@@ -7,14 +7,14 @@
     <meta name="mobile-web-app-capable" content="yes"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-    <meta name="apple-mobile-web-app-title" content="Carta Zumo"/>
+    <meta name="apple-mobile-web-app-title" content="CARTA DE PORTE"/>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23e0621e'/><text x='50' y='60' font-size='33' font-family='sans-serif' fill='white' text-anchor='middle' font-weight='bold'>ZUMO</text></svg>"/>
     <link rel="manifest" href="./manifest.json"/>
     <link rel="apple-touch-icon" href="./icon-192.png"/>
-    <title>Carta de Porte Zumo</title>
+    <title>CARTA DE PORTE</title>
 
     <script>
-        window._APP_NAME = 'Carta Zumo';
+        window._APP_NAME = 'CARTA DE PORTE';
         window._pdfReady = false;
         window._sigReady = false;
         function _checkReady() {
@@ -1092,7 +1092,7 @@ select {
 <!-- ── Pantalla de carga ── -->
 <div id="load-bar">
     <div class="lb-mark">ZUMO</div>
-    <div class="lb-name">CARTA DE PORTE ZUMO</div>
+    <div class="lb-name">CARTA DE PORTE</div>
     <div class="lb-spin"></div>
     <div class="lb-sub">Cargando librerías PDF…</div>
     <div id="load-err"></div>
@@ -1102,7 +1102,7 @@ select {
 <div id="login-screen">
     <div class="ls-card">
         <div class="ls-mark">🍊</div>
-        <div class="ls-title">Carta de Porte Zumo</div>
+        <div class="ls-title">CARTA DE PORTE</div>
         <div class="ls-sub">Acceso privado — Fábricas de zumo</div>
         <div class="ls-field">
             <label for="ls-user">Usuario</label>
@@ -1142,7 +1142,7 @@ select {
         <div class="logo">
             <div id="topbar-logo-mark" class="logo-mark">🍊</div>
             <div>
-                <div class="logo-name">Carta de Porte Zumo</div>
+                <div class="logo-name">CARTA DE PORTE</div>
                 <div class="logo-sub">SAT GUADEX · FÁBRICAS DE ZUMO</div>
             </div>
         </div>
@@ -1170,8 +1170,8 @@ select {
         <div class="block"><div class="bhead"><span class="btag a">DOC</span><span class="btitle">Datos del Documento</span></div><div class="bbody">
             <div class="fr"><label>Tipo de Documento</label>
                 <select id="tipoDoc" onchange="onTipoDocChange()">
-                    <option value="nacional">Carta de Porte Zumo (Nacional)</option>
-                    <option value="cmr">Carta de Porte Zumo (CMR Internacional)</option>
+                    <option value="nacional">CARTA DE PORTE (Nacional)</option>
+                    <option value="cmr">CARTA DE PORTE (CMR Internacional)</option>
                 </select>
             </div>
             <div class="fr2">
@@ -1213,6 +1213,9 @@ select {
                 <div class="fr"><label for="plateTractor">Matrícula Tractora</label><input id="plateTractor" type="text" placeholder="1234 ABC" style="text-transform:uppercase"/></div>
                 <div class="fr"><label for="plateTrailer">Matrícula Semirremolque</label><input id="plateTrailer" type="text" placeholder="R-5678 BC" style="text-transform:uppercase"/></div>
             </div>
+            <div class="fr"><label for="conjuntoArticulado">Conjunto articulado <span style="font-size:.6rem;color:var(--dim);font-weight:400">(art. 6.g)</span></label><select id="conjuntoArticulado"><option value="">— Solo tractor</option><option value="SI">Sí — tractor + semirremolque</option></select></div>
+            <div class="fr"><label for="authEspecial">Autorización especial de circulación <span style="font-size:.6rem;color:var(--dim);font-weight:400">(art. 6.e — solo si el vehículo circula amparado)</span></label><input id="authEspecial" type="text" placeholder="N.º de autorización + órgano que la expide"/></div>
+            <div class="fr"><label for="cambioVehiculo">Cambio de vehículo durante el servicio <span style="font-size:.6rem;color:var(--dim);font-weight:400">(art. 6.g)</span></label><input id="cambioVehiculo" type="text" placeholder="Si hubo cambio: matrícula anterior → nueva, fecha y hora"/></div>
             <div style="text-align:right;margin-top:6px"><span class="qf-pill" onclick="saveDrvToAgenda()">+ Guardar conductor en agenda</span></div>
         </div></div>
 
@@ -1267,6 +1270,13 @@ select {
         <div class="block"><div class="bhead"><span class="btag r">22</span><span class="btitle">Firma del Remitente</span></div><div class="bbody"><div class="sig-box" id="sigWrapSender"><canvas id="sigCanvasSender" role="img" aria-label="Área de firma del remitente"></canvas><div class="sig-hint" id="sigHintSender">✎ Firma aquí</div></div><button class="sig-clr" onclick="clearSigSender()">✕ Borrar firma</button></div></div>
 
         <div class="block"><div class="bhead"><span class="btag g">23</span><span class="btitle">Firma del Conductor</span></div><div class="bbody"><div class="sig-box" id="sigWrap"><canvas id="sigCanvas" role="img" aria-label="Área de firma del conductor"></canvas><div class="sig-hint" id="sigHint">✎ Firma aquí</div></div><button class="sig-clr" onclick="clearSig()">✕ Borrar firma</button></div></div>
+
+        <div class="block"><div class="bhead"><span class="btag b">24</span><span class="btitle">Firma del Destinatario</span></div><div class="bbody"><div class="sig-box" id="sigWrapRcv"><canvas id="sigCanvasRcv" role="img" aria-label="Área de firma del destinatario"></canvas><div class="sig-hint" id="sigHintRcv">✎ Firma aquí</div></div><button class="sig-clr" onclick="clearSigRcv()">✕ Borrar firma</button><div class="hint" style="margin-top:8px">Se firma <b>en el momento de la entrega</b>, en la copia destined al destinatario (casilla 24). En el CMR es donde se hacen constar las reservas.</div></div></div>
+
+        <div class="hint" style="border-left-color:var(--rose-l);background:linear-gradient(90deg,rgba(225,29,72,.06),rgba(225,29,72,.03))">
+            <b>Sobre estas firmas.</b> El DeCA se emite aquí como <b>documento de control administrativo</b>, para el cual la Resolución de 5/6/2026 <b>no exige firma</b>: lo obligatorio es el QR y la URL, y ambos se emiten. El trazo que dibujas es un elemento gráfico y <b>no es una firma electrónica</b>.<br><br>
+            Si además vas a usar la carta de porte como <b>documento contractual</b>, entonces sí se exige firma electrónica según el Reglamento (UE) 910/2014 (eIDAS): como mínimo <b>AdES</b> (avanzada) y, en su defecto, nada. Eso no puede hacerse con un lienzo en el navegador —necesita un prestador de servicios de confianza o un certificado cualificado— y la firma hecha a mano sobre una copia impresa, según la Resolución, <b>carece de validez</b> en el DeCA.
+        </div>
     </div>
 
     <!-- ── Panel: Historial ── -->
@@ -1344,6 +1354,11 @@ select {
             <button onclick="saveCfg()" style="width:100%;height:44px;margin-top:10px;border-radius:var(--r3);border:none;background:var(--blue);color:#fff;font-size:.88rem;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer">Guardar Configuración</button>
         </div></div>
 
+        <div class="block"><div class="bhead"><span class="btag t">DeCA</span><span class="btitle">Registro de Documentos de Control</span></div><div class="bbody">
+            <div class="hint">La Resolución de 5/6/2026 obliga a registrar la fecha y hora de <b>creación</b> de cada fichero DeCA y, si se modifica durante el servicio, también la de esa <b>modificación</b>. Al reemitir un documento ya emitido se encadena como nueva versión.</div>
+            <div id="decaLogList"><div class="hist-empty" style="padding:20px 0">Cargando…</div></div>
+        </div></div>
+
         <div class="block"><div class="bhead"><span class="btag r">🔑</span><span class="btitle">Cambiar Credenciales</span></div><div class="bbody">
             <div class="fr"><label>Nuevo usuario (dejar vacío para no cambiar)</label><input id="cfgNewUser" type="text" placeholder="usuario" autocapitalize="none" spellcheck="false"/></div>
             <div class="fr"><label>Contraseña actual</label><input id="cfgOldPass" type="password" placeholder="••••••••"/></div>
@@ -1389,18 +1404,20 @@ const DB_N  = 'zumo_pro_v1';
 const STORE = 'cmr';
 const AG    = 'agenda';
 const TPL   = 'plantillas';
+const DECA  = 'deca';
 
 // Exponer constantes globalmente para que otros módulos las usen
 window.DB_STORE = STORE;
 window.DB_AG    = AG;
 window.DB_TPL   = TPL;
+window.DB_DECA  = DECA;
 
 let _db = null;
 
 function openDB() {
     return new Promise((res, rej) => {
         if (_db) { res(_db); return; }
-        const r = indexedDB.open(DB_N, 3);
+        const r = indexedDB.open(DB_N, 4);
         r.onupgradeneeded = e => {
             const db = e.target.result;
             if (!db.objectStoreNames.contains(STORE))
@@ -1409,6 +1426,8 @@ function openDB() {
                 db.createObjectStore(AG, { keyPath: 'id', autoIncrement: true });
             if (!db.objectStoreNames.contains(TPL))
                 db.createObjectStore(TPL, { keyPath: 'id', autoIncrement: true });
+            if (!db.objectStoreNames.contains(DECA))
+                db.createObjectStore(DECA, { keyPath: 'id', autoIncrement: true });
         };
         r.onsuccess = e => { _db = e.target.result; res(_db); };
         r.onerror   = rej;
@@ -1622,7 +1641,7 @@ window._attachAutosaveListeners = attachAutosaveListeners;
 // ============================================================
 
 // ── Variables globales ────────────────────────────────────────
-let sigPad, sigPadSender;
+let sigPad, sigPadSender, sigPadRcv;
 window.logoDataURL = null;
 let goodsLineId = 0;
 let succId = 0;
@@ -1669,7 +1688,7 @@ window.tab = function(n) {
     if (n === 'hist')   renderHist();
     if (n === 'agenda') renderAgenda();
     if (n === 'tmpl')   renderTemplates();
-    if (n === 'cfg')    syncCfgPanel();
+    if (n === 'cfg')    { syncCfgPanel(); renderDecaLog(); }
 };
 
 // ── Field helpers ─────────────────────────────────────────────
@@ -1681,7 +1700,8 @@ const FIELDS = ['docNum','docDate','placeEmission','docsAnexos','senderBlock','r
     'placeLoading','placeDelivery','dateDelivery','clientRef','carrierBlock','driverName',
     'driverDNI','plateTractor','plateTrailer','senderInstr','freightTerms','codAmount',
     'observations','tipoDoc','freeline-1','freeline-2','eurosCargados','eurosDevueltos',
-    'pesoBruto','taraVehiculo','pesoNeto','senderNIF','carrierNIF','dateTransport'];
+    'pesoBruto','taraVehiculo','pesoNeto','senderNIF','carrierNIF','dateTransport',
+    'conjuntoArticulado','authEspecial','cambioVehiculo'];
 
 window.collect = function() {
     const d = { savedAt: new Date().toISOString() };
@@ -1703,6 +1723,7 @@ window.collect = function() {
     };
     d.sigDriver = compressSig(sigPad);
     d.sigSender = compressSig(sigPadSender);
+    d.sigRcv    = compressSig(sigPadRcv);
     d.selloDataURL = window.selloDataURL || null;
     return d;
 };
@@ -1731,16 +1752,26 @@ window.initSig = function() {
         sigPadSender = new SignaturePad(c2, { backgroundColor: 'rgba(0,0,0,0)', penColor: '#1e3a8a', minWidth: 2, maxWidth: 3.5, throttle: 16 });
         sigPadSender.addEventListener('beginStroke', () => { document.getElementById('sigHintSender').style.opacity = '0'; });
     }
+    const c3 = document.getElementById('sigCanvasRcv'), w3 = document.getElementById('sigWrapRcv');
+    if (c3 && w3 && typeof SignaturePad !== 'undefined') {
+        const pr3 = window.devicePixelRatio || 1;
+        c3.width = w3.offsetWidth * pr3; c3.height = 220 * pr3; c3.style.height = '220px';
+        const ctx3 = c3.getContext('2d'); ctx3.scale(pr3, pr3);
+        sigPadRcv = new SignaturePad(c3, { backgroundColor: 'rgba(0,0,0,0)', penColor: '#1e3a8a', minWidth: 2, maxWidth: 3.5, throttle: 16 });
+        sigPadRcv.addEventListener('beginStroke', () => { document.getElementById('sigHintRcv').style.opacity = '0'; });
+    }
 };
 
 window.clearSig = () => { if (sigPad) sigPad.clear(); document.getElementById('sigHint').style.opacity = '1'; };
 window.clearSigSender = () => { if (sigPadSender) sigPadSender.clear(); document.getElementById('sigHintSender').style.opacity = '1'; };
+window.clearSigRcv = () => { if (sigPadRcv) sigPadRcv.clear(); document.getElementById('sigHintRcv').style.opacity = '1'; };
 
 window.addEventListener('resize', () => {
-    const d = sigPad?.toData() || [], d2 = sigPadSender?.toData() || [];
+    const d = sigPad?.toData() || [], d2 = sigPadSender?.toData() || [], d3 = sigPadRcv?.toData() || [];
     initSig();
     if (d.length && sigPad) sigPad.fromData(d);
     if (d2.length && sigPadSender) sigPadSender.fromData(d2);
+    if (d3.length && sigPadRcv) sigPadRcv.fromData(d3);
 });
 
 // ── Numeración ────────────────────────────────────────────────
@@ -1944,7 +1975,7 @@ window.newCMR = window.doNewCMR = function() {
     sv('freightTerms', 'PORT PAGADO');
     sv('tipoDoc', 'nacional');
     fillGoodsLines([]); fillSuccessiveCarriers([]);
-    clearSig(); clearSigSender();
+    clearSig(); clearSigSender(); clearSigRcv();
     sv('docNum', genDocNum());
     sv('docDate', new Date().toISOString().split('T')[0]);
     sv('dateTransport', new Date().toISOString().split('T')[0]);
@@ -2424,8 +2455,8 @@ window.renderHist = async function() {
     document.getElementById('st3').textContent = monthKg > 0 ? (monthKg >= 1000 ? (monthKg / 1000).toFixed(1) + 't' : Math.round(monthKg)) : '—';
 };
 
-window.loadRec = async id => { const all = await dbAll(STORE); const r = all.find(x => x.id == id); if (!r) return; fill(r); clearSig(); clearSigSender(); tab('form'); toast('✓ Documento cargado', 'ok'); };
-window.dupRec  = async id => { const all = await dbAll(STORE); const r = all.find(x => x.id == id); if (!r) return; const d = { ...r }; delete d.id; d.docDate = new Date().toISOString().split('T')[0]; d.dateTransport = new Date().toISOString().split('T')[0]; d.savedAt = new Date().toISOString(); fill(d); sv('docNum', genDocNum()); clearSig(); clearSigSender(); tab('form'); toast('✓ Duplicado — cambia el albarán para actualizar el N.º', 'warn', 5000); };
+window.loadRec = async id => { const all = await dbAll(STORE); const r = all.find(x => x.id == id); if (!r) return; fill(r); clearSig(); clearSigSender(); clearSigRcv(); tab('form'); toast('✓ Documento cargado', 'ok'); };
+window.dupRec  = async id => { const all = await dbAll(STORE); const r = all.find(x => x.id == id); if (!r) return; const d = { ...r }; delete d.id; d.docDate = new Date().toISOString().split('T')[0]; d.dateTransport = new Date().toISOString().split('T')[0]; d.savedAt = new Date().toISOString(); fill(d); sv('docNum', genDocNum()); clearSig(); clearSigSender(); clearSigRcv(); tab('form'); toast('✓ Duplicado — cambia el albarán para actualizar el N.º', 'warn', 5000); };
 window.regenPDF = async function(id) {
     const all = await dbAll(STORE); const r = all.find(x => x.id == id); if (!r) return;
     const chosenLayout = await _askPDFLayout(); if (!chosenLayout) return;
@@ -2438,7 +2469,7 @@ window._delOk  = async id => { closeBS(); await dbDel(STORE, id); await renderHi
 
 // ── Plantillas ────────────────────────────────────────────────
 window.saveAsTemplate = async function() {
-    const data = collect(); delete data.sigDriver; delete data.sigSender;
+    const data = collect(); delete data.sigDriver; delete data.sigSender; delete data.sigRcv;
     const suggestedCli  = (data.rcvBlock || '').split('\n')[0].trim() || (data.senderBlock || '').split('\n')[0].trim() || '';
     const suggestedName = [data.senderBlock, data.rcvBlock].map(b => b.split('\n')[0]).filter(Boolean).join(' → ');
     const idCli = '_saveTplCli', idName = '_saveTplName';
@@ -2478,7 +2509,7 @@ window.saveAsTemplate = async function() {
 window._tplOverwrite = async function(id) {
     closeBS();
     const data = window._pendingTplData; if (!data) return;
-    delete data.sigDriver; delete data.sigSender;
+    delete data.sigDriver; delete data.sigSender; delete data.sigRcv;
     const name = window._pendingTplName || data.templateName || '';
     const cli  = window._pendingTplCli !== undefined ? window._pendingTplCli : (data.templateClient || '');
     data.templateName = name; data.templateClient = cli; data.savedAt = new Date().toISOString(); delete data.docNum; delete data.docDate; delete data.dateTransport;
@@ -2518,7 +2549,7 @@ window.updateTemplate = async function(id) {
     showBS('Actualizar plantilla', `<p>Se sobreescribirá <b>${tpl.templateName}</b> con los datos actuales del formulario.</p>`,
         [{ label: 'Cancelar', cls: 'cancel', fn: closeBS },
          { label: 'Actualizar', cls: 'ok', fn: async () => {
-             closeBS(); const data = collect(); delete data.sigDriver; delete data.sigSender;
+             closeBS(); const data = collect(); delete data.sigDriver; delete data.sigSender; delete data.sigRcv;
              data.templateName = tpl.templateName; data.savedAt = new Date().toISOString(); delete data.docNum; delete data.docDate; delete data.dateTransport;
              await dbDel(TPL, id); await dbAdd(TPL, data); renderTemplates(); toast('✓ Plantilla actualizada', 'ok');
          }}]
@@ -2715,11 +2746,11 @@ window.renderTemplates = async function() {
 window.exportDB = async function() {
     const [docs, agenda, plantillas] = await Promise.all([dbAll(STORE), dbAll(AG), dbAll(TPL)]);
     if (!docs.length && !agenda.length && !plantillas.length) { toast('No hay datos para exportar', 'warn'); return; }
-    const backup = { _version: 1, _exportedAt: new Date().toISOString(), _app: 'Carta de Porte Zumo', docs, agenda, plantillas };
+    const backup = { _version: 1, _exportedAt: new Date().toISOString(), _app: 'CARTA DE PORTE', docs, agenda, plantillas };
     const b = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
     const u = URL.createObjectURL(b);
     const a = document.createElement('a');
-    a.href = u; a.download = 'Zumo_Backup_' + new Date().toISOString().slice(0, 10) + '.json';
+    a.href = u; a.download = 'Carta_de_Porte_Backup_' + new Date().toISOString().slice(0, 10) + '.json';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(u), 10000);
     toast(`✓ Backup exportado: ${docs.length} docs, ${agenda.length} agenda, ${plantillas.length} plantillas`, 'ok');
@@ -2807,22 +2838,37 @@ window._appInit = async function() {
 function _advanceSeq(){ /* no-op: secuencia reemplazada por fecha+albarán */ }
 
 // ══ DeCA — Ley 9/2025 de Movilidad Sostenible: QR + subida a Supabase ══
+// Tamaño del QR en el PDF. 100 pt / ~(45+8) módulos ≈ 0,66 mm por módulo:
+// muy por encima del mínimo que una cámara de móvil resuelve sin problemas.
+const DECA_QR_PT = 100;
+// Ancho de la columna que aloja el QR (imagen + márgenes + texto).
+const DECA_COL_W = 118;
+
 function _decaPrepare(D) {
     window._lastDeca = null;
     if (!D._decaDefinitivo) return null; // Borrador: sin QR, sin subida, sin UUID
     const uuid = window.crypto && window.crypto.randomUUID
         ? window.crypto.randomUUID()
         : 'deca-' + Date.now() + '-' + Math.random().toString(36).slice(2);
-    const fechaPrefix = (D.docDate || new Date().toISOString().slice(0,10));
-    const fname = 'zumo_' + fechaPrefix + '_' + uuid + '.pdf';
-    const url = window.SUPA_URL + '/storage/v1/object/public/' + window.SUPA_BUCKET + '/' + fname;
+    // Nombre corto: la URL va dentro del QR y cada carácter añade versión
+    // (y por tanto reduce el tamaño de módulo en el PDF). 12 hex + fecha
+    // mantienen la unicidad exigida por la Resolución; el UUID completo se
+    // guarda en el registro DeCA para trazabilidad.
+    const fechaPrefix = (D.docDate || new Date().toISOString().slice(0,10)).replace(/-/g,'');
+    const fname = 'Z_' + fechaPrefix + '_' + uuid.replace(/-/g,'').slice(0,12) + '.pdf';
+    // ?download= fuerza descarga directa (la Resolución lo exige: sin
+    // credenciales, sin botones y sin interacción manual).
+    const url = window.SUPA_URL + '/storage/v1/object/public/' + window.SUPA_BUCKET + '/' + fname
+              + '?download=' + fname;
     let qrDataURL = null;
     try {
         const qr = qrcode(0, 'M');
         qr.addData(url);
         qr.make();
         const count = qr.getModuleCount();
-        const cell = 6, margin = 4;
+        // Resolución alta: a DECA_QR_PT en A4 sale a ~450 dpi, así que el
+        // módulo queda por encima de 0,6 mm y se lee de sobra con una móvil.
+        const cell = 12, margin = 4;
         const size = count * cell + margin * 2;
         const canvas = document.createElement('canvas');
         canvas.width = size; canvas.height = size;
@@ -2836,7 +2882,7 @@ function _decaPrepare(D) {
         }
         qrDataURL = canvas.toDataURL('image/png');
     } catch(e) { console.warn('QR DeCA error:', e); }
-    const _res = { uuid, fname, url, qrDataURL };
+    const _res = { uuid, fname, url, qrDataURL, docNum: D.docNum || '' };
     window._lastDeca = _res;
     return _res;
 }
@@ -2854,16 +2900,101 @@ function _decaQRCell(deca) {
     return {
         stack: [
             {text:'DeCA · Control Administrativo', fontSize:5, bold:true, color:'#666', margin:[0,0,0,2], alignment:'center'},
-            {image: deca.qrDataURL, width:48, height:48, alignment:'center'},
-            {text:'Ley 9/2025 Movilidad Sostenible', fontSize:4.3, color:'#999', alignment:'center', margin:[0,2,0,0]}
+            {image: deca.qrDataURL, width:DECA_QR_PT, height:DECA_QR_PT, alignment:'center'},
+            {text:'Ley 9/2025 · Res. 5/6/2026', fontSize:4.3, color:'#999', alignment:'center', margin:[0,2,0,0]},
+            {text:'Documento de control. El trazo manuscrito no es firma electrónica AdES.', fontSize:4, color:'#aaa', alignment:'center', margin:[0,1,0,0]}
         ],
         border:[true,true,true,true], fillColor:'#fff'
     };
 }
 
-async function _decaSubirPDF(blob, deca) {
-    if (!deca) return { ok:true };
+// Datos del art. 6 de la Orden FOM/2861/2012 que la carta de porte no
+// recoge en ninguna otra casilla: la autorización especial de circulación
+// y la constancia de cambio de vehículo.
+function _decaArt6Extra(D) {
+    const out = [];
+    if (D.authEspecial)
+        out.push({text:'Autorización especial de circulación: ' + D.authEspecial, fontSize:6.5, color:'#000', margin:[4,0,4,0]});
+    if (D.cambioVehiculo)
+        out.push({text:'Cambio de vehículo: ' + D.cambioVehiculo, fontSize:6.5, color:'#000', margin:[4,0,4,0]});
+    return out;
+}
+
+// ---- Registro DeCA ----
+// La Resolución de 5/6/2026 obliga a que la aplicación registre la fecha y
+// hora de creación del fichero y, si el documento se modifica durante el
+// servicio, también la de esa modificación. Guardamos una entrada por
+// emisión, encadenando por número de documento: la 2ª emisión del mismo
+// documento es una modificación de la 1ª, no un documento nuevo.
+async function _decaLog(deca, docNum) {
     try {
+        const prev = (await _idbAll(DECA)).find(r => r.docNum === docNum);
+        const now  = new Date();
+        const rec  = {
+            uuid:          deca.uuid,
+            fname:         deca.fname,
+            url:           deca.url,
+            docNum:        docNum,
+            tipoDoc:       'nacional',
+            version:       prev ? prev.version + 1 : 1,
+            esModificacion: !!prev,
+            anteriorUuid:  prev ? prev.uuid : null,
+            fechaCreacion: prev ? prev.fechaCreacion : now.toISOString(),
+            fechaModificacion: prev ? now.toISOString() : null,
+            emitido:       now.toISOString()
+        };
+        const id = await _idbAdd(DECA, rec);
+        rec.id = id;
+        return rec;
+    } catch (e) {
+        console.warn('Registro DeCA:', e);
+        return null;
+    }
+}
+
+window.renderDecaLog = function() {
+    const box = document.getElementById('decaLogList');
+    if (!box) return;
+    _idbAll(DECA).then(rows => {
+        if (!rows.length) {
+            box.innerHTML = '<div class="hist-empty" style="padding:20px 0">Aún no se ha emitido ningún DeCA</div>';
+            return;
+        }
+        const fmt = iso => {
+            if (!iso) return '—';
+            const d = new Date(iso);
+            return isNaN(d) ? iso : d.toLocaleString('es-ES');
+        };
+        // docNum llega de la app pero puede venir de una plantilla importada,
+        // así que se escapa antes de meterlo en innerHTML.
+        const esc = s => String(s == null ? '' : s)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        box.innerHTML = rows.map(r => `
+            <div class="hitem" style="align-items:flex-start">
+                <div class="hico">🔲</div>
+                <div class="hinfo">
+                    <div class="hnum">${esc(r.docNum) || '—'}
+                        <span class="hwbadge" style="${r.esModificacion ? 'background:rgba(146,64,14,.12);border-color:rgba(146,64,14,.3);color:var(--amber-l)' : ''}">v${r.version}</span>
+                        ${r.esModificacion ? '<span class="hwbadge" style="background:rgba(146,64,14,.12);border-color:rgba(146,64,14,.3);color:var(--amber-l)">modificación</span>' : ''}
+                    </div>
+                    <div class="hsub" title="${esc(r.url)}">${esc(r.fname)}</div>
+                    <div style="font-size:.62rem;color:var(--dim);margin-top:3px;font-family:'JetBrains Mono',monospace">
+                        Creado: ${fmt(r.fechaCreacion)}<br>
+                        ${r.esModificacion ? 'Modificado: ' + fmt(r.fechaModificacion) : 'Modificado: —'}
+                    </div>
+                </div>
+                <div class="hacts">
+                    <a class="hb pd" href="${r.url}" target="_blank" rel="noopener" title="Abrir PDF">↗</a>
+                </div>
+            </div>`).join('');
+    }).catch(e => {
+        box.innerHTML = '<div class="hist-empty" style="padding:20px 0;color:var(--rose-l)">No se pudo leer el registro</div>';
+    });
+};
+
+async function _decaSubirPDF(blob, deca) {
+    if (!deca) return { ok:true };    try {
         if (blob.size > 5*1024*1024) {
             toast('⚠ PDF DeCA supera 5 MB — no válido, no se publica','err',6000);
             alert('El PDF pesa ' + (blob.size/1048576).toFixed(2) + ' MB. La Resolución de 5/6/2026 limita el DeCA a 5 MB, así que NO se ha publicado.\n\nReduce el tamaño (logo, sello o firma más pequeños) y vuelve a emitirlo.');
@@ -2884,7 +3015,10 @@ async function _decaSubirPDF(blob, deca) {
             const errTxt = await resp.text().catch(()=>resp.statusText);
             throw new Error('HTTP ' + resp.status + ': ' + errTxt);
         }
-        return { ok:true };
+        // Solo se registra si el fichero está realmente publicado: el registro
+        // da fe de la fecha de creación, y no puede haberlo si no se subió.
+        const reg = await _decaLog(deca, deca.docNum);
+        return { ok:true, registro: reg };
     } catch(e) {
         console.error('Error subiendo DeCA:', e);
         const fullMsg = 'DeCA upload error\nEndpoint: ' + window.SUPA_URL + '/storage/v1/object/' + window.SUPA_BUCKET + '/' + deca.fname + '\n\n' + (e.message||e);
@@ -2901,7 +3035,7 @@ function _askDecaDefinitivo(){
         const h = '<p style="font-size:.78rem;color:var(--dim);margin-bottom:12px">¿Es ya la versión definitiva de este documento?</p>'
             + '<button id="_deca_si" style="'+mbs+'"><span style="font-size:1.4rem;line-height:1.1">✅</span><span><b style="display:block">Sí, es definitivo — emitir DeCA</b><span style="font-size:.7rem;color:var(--dim);font-weight:400">Se genera el QR y se sube el PDF de forma permanente. No podrá sobreescribirse después.</span></span></button>'
             + '<button id="_deca_no" style="'+mbs+'"><span style="font-size:1.4rem;line-height:1.1">✏️</span><span><b style="display:block">No, sigo editando (borrador)</b><span style="font-size:.7rem;color:var(--dim);font-weight:400">Se genera el PDF para revisar, sin QR ni subida. Repite este paso cuando esté listo.</span></span></button>';
-        showBS('Carta de Porte Zumo · DeCA', h, [{label:'Cancelar',cls:'cancel',fn:()=>{closeBS();resolve(null);}}]);
+        showBS('CARTA DE PORTE · DeCA', h, [{label:'Cancelar',cls:'cancel',fn:()=>{closeBS();resolve(null);}}]);
         setTimeout(()=>{
             const a=document.getElementById('_deca_si'); if(a) a.addEventListener('click',()=>{closeBS();resolve(true);});
             const b=document.getElementById('_deca_no'); if(b) b.addEventListener('click',()=>{closeBS();resolve(false);});
@@ -2914,7 +3048,7 @@ async function _sharePDF(blob, fname, docNum, safetyTimer) {
     showOv(false);
     const url = URL.createObjectURL(blob);
     const rcv = (gv('rcvBlock')||'').split('\n')[0].trim();
-    const mailUrl = 'mailto:?subject=' + encodeURIComponent('CMR ' + docNum) + '&body=' + encodeURIComponent('Adjunto carta de porte ' + docNum + (rcv ? ' para ' + rcv : '') + '.\n\nGenerado con Carta de Porte Zumo.');
+    const mailUrl = 'mailto:?subject=' + encodeURIComponent('CMR ' + docNum) + '&body=' + encodeURIComponent('Adjunto carta de porte ' + docNum + (rcv ? ' para ' + rcv : '') + '.\n\nGenerado con CARTA DE PORTE.');
 
     window._sharePDFBlob  = blob;
     window._sharePDFFname = fname;
@@ -3066,25 +3200,40 @@ async function generateCMR(){
     const data=collect();
     data._pdfLayout = chosenLayout;
     delete data.id;
-    // ── DeCA: pregunta si es definitivo ──
-    const decaDefinitivo = await _askDecaDefinitivo();
+    // ── DeCA: solo aplica al transporte interior (Orden FOM/2861/2012).
+    //    En CMR internacional rigen los documentos del convenio, así que
+    //    no se pregunta ni se emite DeCA. ──
+    const esNacional = (data.tipoDoc || 'nacional') === 'nacional';
+    const decaDefinitivo = esNacional ? await _askDecaDefinitivo() : false;
     if (decaDefinitivo === null) return;
     data._decaDefinitivo = decaDefinitivo;
-    // Validar campos obligatorios DeCA si es definitivo
+    // Validar los datos de carácter esencial del art. 6 antes de definitivo
     if (decaDefinitivo) {
-        const _wSum = Array.from(document.querySelectorAll('[id^="gl-weight-"]')).reduce((a,el)=>a+(parseFloat(String(el.value||'').replace(',','.'))||0),0);
-        const _pesoOk = _wSum > 0 || (parseFloat(gv('pesoBruto'))||0) > 0;
         const DECA_REQUIRED = [
-            { id: 'senderBlock',   label: 'Nombre y domicilio del cargador contractual' },
-            { id: 'senderNIF',     label: 'NIF Cargador contractual' },
-            { id: 'carrierBlock',  label: 'Nombre del transportista efectivo' },
-            { id: 'carrierNIF',    label: 'NIF Transportista efectivo' },
-            { id: 'plateTractor',  label: 'Matrícula del vehículo' },
-            { id: 'dateTransport', label: 'Fecha de realización del transporte' },
+            { id: 'senderBlock',   label: 'Nombre y domicilio del cargador contractual (art. 6.a)' },
+            { id: 'senderNIF',     label: 'NIF del cargador contractual (art. 6.a)' },
+            { id: 'carrierBlock',  label: 'Nombre y domicilio del transportista efectivo (art. 6.b)' },
+            { id: 'carrierNIF',    label: 'NIF del transportista efectivo (art. 6.b)' },
+            { id: 'placeLoading',  label: 'Lugar de origen del envío (art. 6.c)' },
+            { id: 'placeDelivery', label: 'Lugar de destino del envío (art. 6.c)' },
+            { id: 'plateTractor',  label: 'Matrícula del vehículo (art. 6.g)' },
+            { id: 'dateTransport', label: 'Fecha de realización del transporte (art. 6.f)' },
         ];
+        // art. 6.g, in fine: en conjunto articulado constan tractor Y semirremolque.
+        if (gv('conjuntoArticulado') === 'SI')
+            DECA_REQUIRED.push({ id: 'plateTrailer', label: 'Matrícula del semirremolque — conjunto articulado (art. 6.g)' });
+
         const decaMissing = DECA_REQUIRED.filter(f => !gv(f.id));
-        if (!_pesoOk) {
-            decaMissing.push({ id: '_peso', label: 'Peso de la mercancía (kg)' });
+
+        // art. 6.d: naturaleza y peso de la mercancía transportada.
+        let _lineas = [];
+        try { _lineas = collectGoodsLines() || []; } catch (e) { _lineas = []; }
+        const _desc0 = document.querySelector('[id^="gl-desc-"]');
+        if (!_lineas.some(l => (l.desc || '').trim()))
+            decaMissing.push({ id: _desc0 ? _desc0.id : 'goods-lines', label: 'Naturaleza de la mercancía (art. 6.d)' });
+        const _pesoMerc = _lineas.reduce((a, l) => a + (parseFloat(String(l.weight || '').replace(',', '.')) || 0), 0);
+        if (!(_pesoMerc > 0)) {
+            decaMissing.push({ id: '_peso', label: 'Peso de la mercancía en kg (art. 6.d)' });
             document.querySelectorAll('[id^="gl-weight-"]').forEach(el => el.classList.add('field-error'));
         }
         if (decaMissing.length) {
@@ -3206,7 +3355,7 @@ function buildPDF(D,safetyTimer){
 3. El retraso en la entrega dará lugar a indemnización si se ha formulado reserva en el momento de la entrega.
 4. Las reclamaciones prescribirán al año, salvo dolo o culpa grave (3 años).
 5. El destinatario deberá manifestar las reservas en el momento de la entrega o dentro de los siete días siguientes.
-6. La carta de porte deberá ser firmada por remitente, transportista y destinatario.`
+6. La carta de porte acredita el transporte; las firmas que figuren en ella son conformadas a efectos de prueba y no sustituyen, cuando el documento se use con fines contractuales, a la firma electrónica avanzada (AdES) exigible por el Reglamento (UE) 910/2014 (eIDAS).`
         : `Este contrato de transporte se rige por el Convenio relativo al contrato de transporte internacional de mercancías por carretera (CMR), Ginebra, 19 de mayo de 1956, y el Protocolo de 5 de julio de 1978.\n1. El transportista responde de la pérdida total o parcial y de las averías que se produzcan desde el momento de la recepción de la mercancía hasta el de su entrega.\n2. La indemnización no excederá de 8,33 DEG por kilogramo de peso bruto faltante.\n3. El retraso en la entrega sólo dará lugar a indemnización si se ha formulado reserva por escrito.\n4. Las reclamaciones deberán dirigirse al transportista dentro del plazo de un año, o de tres años en caso de dolo o culpa grave.\n5. Los daños y perjuicios que no resulten de la pérdida o avería de la mercancía se limitan al importe del porte.\n6. El destinatario deberá manifestar por escrito al transportista las reservas por pérdidas o averías en el momento de la entrega, o a más tardar en los siete días siguientes.`;
 
     const content=[];
@@ -3233,7 +3382,11 @@ function buildPDF(D,safetyTimer){
         _copyItems.push({table:{widths:['*','*','auto'],body:[[box(4,'Lugar de carga',D.placeLoading||'—'),(function(){const b=box(3,'Lugar de entrega',D.placeDelivery||'—'); b.stack.push(spacer(12)); return b;})(),box('','Fecha transporte / entrega prev.','Transp.: '+transStr+'\nEntrega: '+delivStr)]]},layout:lay,margin:[0,0,0,0]});
         _copyItems.push(colorLine());
         _copyItems.push({table:{widths:['*','auto'],body:[[box(5,'Docs. anexos / Albarán',D.docsAnexos||'—'),box(14,'Reembolso €',D.codAmount||'')]]},layout:lay,margin:[0,0,0,0]});
-        const platesStr = [D.plateTractor,D.plateTrailer].filter(Boolean).join('  /  ') || '—';
+        // art. 6.g: en conjunto articulado deben constar tractor Y semirremolque
+        // de forma diferenciada, no solo las matrículas una detrás de otra.
+        const platesStr = [D.plateTractor&&('Tractor: '+D.plateTractor),
+                           (D.conjuntoArticulado==='SI'&&D.plateTrailer)&&('Semirremolque: '+D.plateTrailer)]
+                          .filter(Boolean).join('   /   ') || '—';
         const box16f = (()=>{
             const bdy=[];
             bdy.push({columns:[{text:'16f',fontSize:7,bold:true,color:'#888',width:'auto'},{text:'Conductor · Vehículo',fontSize:6.5,color:'#888',width:'*',alignment:'right'}],margin:[3,2,3,1]});
@@ -3315,7 +3468,7 @@ function buildPDF(D,safetyTimer){
         _copyItems.push(colorLine());
         _copyItems.push({table:{widths:['auto','auto','auto','*','auto','auto','auto'],body:goodsBody,dontBreakRows:true},layout:lay,margin:[0,0,0,0]});
 
-        // ── Bloque de pesaje (exclusivo Carta Zumo) ──
+        // ── Bloque de pesaje (exclusivo CARTA DE PORTE) ──
         if (pesoBruto !== null) {
             const pLbl = (t, green) => ({text: t, fontSize: 6, bold: true, color: green ? '#0a6b60' : '#555', margin:[3,3,3,2], fillColor: green ? '#d0f0eb' : '#e8e8e8', border:[true,true,true,true], alignment:'center'});
             const pVal = (v, green) => ({text: v, fontSize: green ? 13 : 10, bold: true, color: green ? '#0a6b60' : '#222', margin:[3,4,3,4], alignment:'center', fillColor: green ? '#e6f7f5' : '#ffffff', border:[true,true,true,true]});
@@ -3356,26 +3509,28 @@ function buildPDF(D,safetyTimer){
             return {stack,border:[true,true,true,true],fillColor:'#fff'};
         };
         const sigDriverCell=()=>{ const hasSig=D.sigDriver&&D.sigDriver.startsWith('data:image'); if(hasSig){ return {stack:[sigHdr23,{image:D.sigDriver,fit:[100,46],alignment:'center',margin:[0,2,0,0]},{text:D.driverName||'',fontSize:6.5,alignment:'center',margin:[0,1,0,2]}],border:[true,true,true,true],fillColor:'#fff'}; } return {stack:[sigHdr23,{text:'',margin:[0,40,0,0]},{text:D.driverName||'',fontSize:6.5,alignment:'center',color:'#888',margin:[0,0,0,2]}],border:[true,true,true,true],fillColor:'#fff'}; };
-        const sigConsCell=()=>({stack:[sigHdr24,{text:(D.rcvBlock||'').split('\n')[0]||'',fontSize:6.5,alignment:'center',color:'#888',margin:[0,40,0,2]}],border:[true,true,true,true],fillColor:'#fff'});
+        const sigConsCell=()=>{ const hasSig=D.sigRcv&&D.sigRcv.startsWith('data:image'); if(hasSig){ return {stack:[sigHdr24,{image:D.sigRcv,fit:[110,46],alignment:'center',margin:[0,2,0,0]},{text:(D.rcvBlock||'').split('\n')[0]||'',fontSize:6.5,alignment:'center',color:'#888',margin:[0,1,0,2]}],border:[true,true,true,true],fillColor:'#fff'}; } return {stack:[sigHdr24,{text:'',margin:[0,40,0,0]},{text:(D.rcvBlock||'').split('\n')[0]||'',fontSize:6.5,alignment:'center',color:'#888',margin:[0,0,0,2]}],border:[true,true,true,true],fillColor:'#fff'}; };
 
         _copyItems.push({table:{widths:['*','*','*'],body:[[sigSenderCell(),sigDriverCell(),sigConsCell()]]},layout:lay,margin:[0,0,0,4]});
 
         const tituloClausulas = isNacional ? 'CLÁUSULAS LEGALES (Ley 15/2009 y Orden FOM/2861/2012)' : 'CLÁUSULAS DEL CONVENIO CMR';
-        const pieTexto = isNacional ? 'Documento generado conforme a la Ley 15/2009 y Orden FOM/2861/2012' : 'Carta de Porte Zumo  ·  Convenio CMR Ginebra 1956';
+        const pieTexto = isNacional ? 'Documento generado conforme a la Ley 15/2009 y Orden FOM/2861/2012' : 'CARTA DE PORTE  ·  Convenio CMR Ginebra 1956';
         // ── DeCA: NIF + QR Ley 9/2025 ──
         const _deca = D._deca || null;
-        const _hasNIF = D.senderNIF || D.carrierNIF;
+        const _art6Extra = _decaArt6Extra(D);
+        const _hasNIF = D.senderNIF || D.carrierNIF || _art6Extra.length;
         const _nifStack = [];
         if (_hasNIF) {
             _nifStack.push({text:'DATOS NORMATIVOS — Ley 9/2025 / DeCA',fontSize:5.5,bold:true,color:'#555',margin:[4,3,4,1]});
             if (D.senderNIF)  _nifStack.push({text:'NIF cargador contractual: '+D.senderNIF,  fontSize:6.5,color:'#000',margin:[4,0,4,0]});
-            if (D.carrierNIF) _nifStack.push({text:'NIF Transportista: '+D.carrierNIF,fontSize:6.5,color:'#000',margin:[4,0,4,2]});
+            if (D.carrierNIF) _nifStack.push({text:'NIF Transportista: '+D.carrierNIF,fontSize:6.5,color:'#000',margin:[4,0,4,0]});
+            _nifStack.push(..._art6Extra);
         }
         const _nifCols = [];
         if (_nifStack.length) _nifCols.push({stack:_nifStack,width:'*'});
         else                  _nifCols.push({text:'',width:'*'});
         const _decaCell = _decaQRCell(_deca);
-        _nifCols.push({..._decaCell, width:72});
+        _nifCols.push({..._decaCell, width:DECA_COL_W});
         _copyItems.push({
             table:{widths:['*'],body:[[{
                 columns:_nifCols,
@@ -3389,12 +3544,12 @@ function buildPDF(D,safetyTimer){
         if(ci<copies.length-1) content.push({text:'',pageBreak:'after'});
     });
     try{
-        pdfMake.createPdf({pageSize:'A4',pageMargins:[18,6,18,4],compress:true,content,defaultStyle:{font:'Roboto',fontSize:10,color:'#111'},info:{title:(isNacional?'Carta Porte Nacional ':'CMR ')+num,author:'Carta de Porte Zumo',creationDate:new Date(),modDate:new Date(),subject:isNacional?'Carta de Porte Nacional':'Carta de Porte Internacional CMR'}}).getBlob(blob=>{
+        pdfMake.createPdf({pageSize:'A4',pageMargins:[18,6,18,4],compress:true,content,defaultStyle:{font:'Roboto',fontSize:10,color:'#111'},info:{title:(isNacional?'Carta Porte Nacional ':'CMR ')+num,author:'CARTA DE PORTE',creationDate:new Date(),modDate:new Date(),subject:isNacional?'Carta de Porte Nacional':'Carta de Porte Internacional CMR'}}).getBlob(blob=>{
             clearTimeout(safetyTimer);showOv(false);
             const fname=(isNacional?'CARTA_PORTE_NAC_':'CMR_')+num.replace(/[^a-z0-9]/gi,'_')+'.pdf';
             _sharePDF(blob, fname, num, safetyTimer);
             const _decaUpP = D._deca || null;
-            if (_decaUpP) { _decaSubirPDF(blob, _decaUpP).then(res=>{ if(res.ok) toast('✓ DeCA publicado online','ok',3500); }); }
+            if (_decaUpP) { _decaSubirPDF(blob, _decaUpP).then(res=>{ if(res.ok) toast(res.registro && res.registro.esModificacion ? '✓ DeCA modificado y publicado (v'+res.registro.version+')' : '✓ DeCA publicado online','ok',3500); }); }
             setTimeout(()=>URL.revokeObjectURL(URL.createObjectURL(blob)),30000);
         });
     }catch(pdfErr){ clearTimeout(safetyTimer);showOv(false);toast('⚠ Error: '+pdfErr.message,'err',6000); }
@@ -3470,8 +3625,11 @@ async function stampSelloOnPDF(pdfBlob, selloDataURL) {
 
 async function buildPDF_withSello(D, safetyTimer) {
     if (!D.selloDataURL && window.selloDataURL) D.selloDataURL = window.selloDataURL;
-    // Preparar DeCA (genera UUID, fname, URL pública y QR)
-    D._deca = _decaPrepare(D);
+    // Preparar DeCA (genera UUID, fname, URL pública y QR).
+    // Solo en transporte interior: el DeCA (Orden FOM/2861/2012) no aplica a
+    // transportes internacionales, que se rigen por los documentos del
+    // convenio CMR. Etiquetarlos como DeCA sería incorrecto.
+    D._deca = D.tipoDoc === 'nacional' ? _decaPrepare(D) : null;
     buildPDF_dispatch(D, safetyTimer);
 }
 
@@ -3520,7 +3678,9 @@ function buildPDF_Classic(D, safetyTimer){
         const sender  = D.senderBlock||'';
         const rcv     = D.rcvBlock||'';
         const carrier = D.carrierBlock||'';
-        const plates  = [D.plateTractor,D.plateTrailer].filter(Boolean).join(' / ');
+        const plates  = [D.plateTractor&&('Tractor: '+D.plateTractor),
+                         (D.conjuntoArticulado==='SI'&&D.plateTrailer)&&('Semirremolque: '+D.plateTrailer)]
+                        .filter(Boolean).join(' / ');
         const deliv   = D.placeDelivery||'';
         const load    = D.placeLoading||'';
         const docs    = D.docsAnexos||'';
@@ -3688,7 +3848,7 @@ function buildPDF_Classic(D, safetyTimer){
             r5.table.body.push([{text:[{text:'EURP. CARGADOS: ',bold:true,fontSize:8},{text:_eurC||'0'},{text:'    EURP. DEVUELTOS: ',bold:true,fontSize:8},{text:_eurD||'0'}],fontSize:8,color:'#000',margin:[4,3,4,3],colSpan:7,fillColor:WH,border:bA},{},{},{},{},{},{}]);
             r5.table.heights.push(16);
         }
-        // Pesaje (Carta Zumo)
+        // Pesaje (CARTA DE PORTE)
         const _clPB = D.pesoBruto    ? parseFloat(D.pesoBruto)    : null;
         const _clPT = D.taraVehiculo ? parseFloat(D.taraVehiculo) : null;
         const _clPN = (_clPB!==null&&_clPT!==null) ? Math.max(0,_clPB-_clPT) : null;
@@ -3788,6 +3948,16 @@ function buildPDF_Classic(D, safetyTimer){
             sigDrvStack.push({text:'',margin:[0,30,0,0]});
         }
         sigDrvStack.push({text:D.driverName||'',fontSize:6.5,alignment:'center',color:'#888',margin:[0,0,0,2]});
+        const sigRcvStack = [
+            {text:'24',fontSize:6.5,color:LC,margin:[4,4,4,3]},
+            {text:'Firma y sello del consignatario',fontSize:6,color:'#aaa',margin:[4,0,4,5]},
+        ];
+        if(D.sigRcv&&D.sigRcv.startsWith('data:image')){
+            sigRcvStack.push({image:D.sigRcv,width:120,height:55,alignment:'center',margin:[0,4,0,4]});
+        } else {
+            sigRcvStack.push({text:'',margin:[0,30,0,0]});
+        }
+        sigRcvStack.push({text:(D.rcvBlock||'').split('\n')[0]||'',fontSize:6.5,alignment:'center',color:'#888',margin:[0,0,0,2]});
         const r7 = {
             table:{
                 widths:['33%','34%','33%'],
@@ -3795,7 +3965,7 @@ function buildPDF_Classic(D, safetyTimer){
                 body:[[
                     {stack:sigSndStack,fillColor:WH,border:bA},
                     {stack:sigDrvStack,fillColor:WH,border:bA},
-                    {stack:[{text:'24 Recibo de la mercancia',fontSize:6.5,color:LC,margin:[4,4,4,5]},{text:'Firma y sello del consignatario',fontSize:6,color:'#aaa',margin:[4,0,4,0]},{text:'',margin:[0,30,0,0]},{text:(D.rcvBlock||'').split('\n')[0]||'',fontSize:6.5,alignment:'center',color:'#888',margin:[0,0,0,2]}],fillColor:BL,border:bA},
+                    {stack:sigRcvStack,fillColor:BL,border:bA},
                 ]]
             },
             layout:layR, margin:[0,0,0,0]
@@ -3816,7 +3986,8 @@ function buildPDF_Classic(D, safetyTimer){
         const _cDeca = D._deca || null;
         const _cNifItems = [];
         if (D.senderNIF)  _cNifItems.push({text:'NIF cargador contractual: '+D.senderNIF,  fontSize:7,color:'#000',margin:[4,2,4,0]});
-        if (D.carrierNIF) _cNifItems.push({text:'NIF Transportista: '+D.carrierNIF,fontSize:7,color:'#000',margin:[4,0,4,2]});
+        if (D.carrierNIF) _cNifItems.push({text:'NIF Transportista: '+D.carrierNIF,fontSize:7,color:'#000',margin:[4,0,4,0]});
+        _cNifItems.push(..._decaArt6Extra(D));
         const _cNifCols = [];
         if (_cNifItems.length) {
             _cNifCols.push({
@@ -3827,7 +3998,7 @@ function buildPDF_Classic(D, safetyTimer){
             _cNifCols.push({text:'',width:'*'});
         }
         const _cDecaCell = _decaQRCell(_cDeca);
-        _cNifCols.push({..._cDecaCell, width:68});
+        _cNifCols.push({..._cDecaCell, width:DECA_COL_W});
         const _cNifBlock = {
             table:{widths:['*'],body:[[{columns:_cNifCols,border:[true,true,true,true],fillColor:'#f9f7f4',margin:[0,0,0,0]}]]},
             layout:'noBorders',margin:[0,0,0,0]
@@ -3844,13 +4015,13 @@ function buildPDF_Classic(D, safetyTimer){
             pageSize:'A4', pageMargins:[20,16,20,8], compress:true,
             content:allContent,
             defaultStyle:{font:'Roboto',fontSize:9,color:'#111'},
-            info:{title:'CMR '+num,author:'Carta de Porte Zumo',creationDate:new Date(),modDate:new Date(),subject:'Carta de Porte Internacional CMR'}
+            info:{title:'CMR '+num,author:'CARTA DE PORTE',creationDate:new Date(),modDate:new Date(),subject:'Carta de Porte Internacional CMR'}
         }).getBlob(blob=>{
             clearTimeout(safetyTimer); showOv(false);
             const fname='CMR_CLASSIC_'+num.replace(/[^a-z0-9]/gi,'_')+'.pdf';
             _sharePDF(blob, fname, num, safetyTimer);
             const _decaUpC = D._deca || null;
-            if (_decaUpC) { _decaSubirPDF(blob, _decaUpC).then(res=>{ if(res.ok) toast('✓ DeCA publicado online','ok',3500); }); }
+            if (_decaUpC) { _decaSubirPDF(blob, _decaUpC).then(res=>{ if(res.ok) toast(res.registro && res.registro.esModificacion ? '✓ DeCA modificado y publicado (v'+res.registro.version+')' : '✓ DeCA publicado online','ok',3500); }); }
             setTimeout(()=>URL.revokeObjectURL(URL.createObjectURL(blob)),30000);
         });
     }catch(e){
@@ -3923,7 +4094,9 @@ function buildPDF_IncoDocs(D, safetyTimer){
         content.push({table:{widths:['40%','35%','25%'],body:[[field('5  Documentos anexos',D.docsAnexos||''),field('Referencia cliente',D.clientRef||''),field('14  Franqueo',freightStr)]]},layout:lay,margin:[0,0,0,2]});
 
         // Transportista
-        const platesStr=[D.plateTractor,D.plateTrailer].filter(Boolean).join('  /  ');
+        const platesStr=[D.plateTractor&&('Tractor: '+D.plateTractor),
+                         (D.conjuntoArticulado==='SI'&&D.plateTrailer)&&('Semirremolque: '+D.plateTrailer)]
+                        .filter(Boolean).join('  /  ');
         const carrierBaseVal=(D.carrierBlock||'')+(D.driverName?'\nConductor: '+D.driverName+(D.driverDNI?' — DNI: '+D.driverDNI:''):'');
         const carrierCell16 = { stack:[
             {text:'16  Transportista / Carrier', fontSize:6.5, color:'#7a6a58', bold:false, margin:[4,4,4,2]},
@@ -3955,7 +4128,7 @@ function buildPDF_IncoDocs(D, safetyTimer){
         if(_eC||_eD) gTableBody.push([{text:[{text:'EURP. CARGADOS: ',bold:true,fontSize:8},{text:_eC||'0'},{text:'    EURP. DEVUELTOS: ',bold:true,fontSize:8},{text:_eD||'0'}],fontSize:8,color:BLK,margin:[3,3,3,3],colSpan:7,fillColor:WH,border:[true,true,true,true]},{},{},{},{},{},{}]);
         content.push({table:{widths:gW,body:gTableBody},layout:{hLineWidth:(i,n)=>i===0||i===1||i===n.table.body.length?0.8:0.6,vLineWidth:()=>0.8,hLineColor:()=>BDR,vLineColor:()=>BDR},margin:[0,0,0,2]});
 
-        // ── Bloque de pesaje (Carta Zumo) ──
+        // ── Bloque de pesaje (CARTA DE PORTE) ──
         const _pB = D.pesoBruto    ? parseFloat(D.pesoBruto)    : null;
         const _pT = D.taraVehiculo ? parseFloat(D.taraVehiculo) : null;
         const _pN = (_pB !== null && _pT !== null) ? Math.max(0, _pB - _pT) : null;
@@ -3970,7 +4143,7 @@ function buildPDF_IncoDocs(D, safetyTimer){
 
         // Instrucciones / Estipulaciones / Emisión — anclado al fondo
         const cl = isNac
-            ? `Este contrato se rige por la Ley 15/2009 del contrato de transporte terrestre de mercancías y la Orden FOM/2861/2012. 1. El porteador responde de la pérdida total o parcial y de las averías desde la recepción hasta la entrega. 2. La indemnización por pérdida o avería no excederá del valor de mercado de la mercancía o 1/3 del IPREM por kilogramo. 3. El retraso en la entrega dará lugar a indemnización si se ha formulado reserva en el momento de la entrega. 4. Las reclamaciones prescribirán al año, salvo dolo o culpa grave (3 años). 5. El destinatario deberá manifestar las reservas en el momento de la entrega o dentro de los siete días siguientes. 6. La carta de porte deberá ser firmada por remitente, transportista y destinatario.`
+            ? `Este contrato se rige por la Ley 15/2009 del contrato de transporte terrestre de mercancías y la Orden FOM/2861/2012. 1. El porteador responde de la pérdida total o parcial y de las averías desde la recepción hasta la entrega. 2. La indemnización por pérdida o avería no excederá del valor de mercado de la mercancía o 1/3 del IPREM por kilogramo. 3. El retraso en la entrega dará lugar a indemnización si se ha formulado reserva en el momento de la entrega. 4. Las reclamaciones prescribirán al año, salvo dolo o culpa grave (3 años). 5. El destinatario deberá manifestar las reservas en el momento de la entrega o dentro de los siete días siguientes. 6. La carta de porte acredita el transporte; las firmas que figuren en ella son conformadas a efectos de prueba y no sustituyen, cuando el documento se use con fines contractuales, a la firma electrónica avanzada (AdES) exigible por el Reglamento (UE) 910/2014 (eIDAS).`
             : `Este contrato se rige por el Convenio CMR (Ginebra, 19 mayo 1956) y el Protocolo de 5 julio 1978. 1. El transportista responde de la pérdida total o parcial y de las averías desde la recepción hasta la entrega. 2. La indemnización no excederá de 8,33 DEG por kilogramo de peso bruto faltante. 3. El retraso sólo dará lugar a indemnización si se ha formulado reserva por escrito. 4. Las reclamaciones deberán dirigirse al transportista en el plazo de 1 año (3 años en caso de dolo o culpa grave). 5. Los daños no derivados de pérdida o avería se limitan al importe del porte. 6. El destinatario deberá manifestar reservas por escrito en el momento de la entrega o a más tardar en los 7 días siguientes.`;
         const sigH=58;
 
@@ -4002,19 +4175,22 @@ function buildPDF_IncoDocs(D, safetyTimer){
                         return{stack:st,fillColor:WH,border:[true,true,true,true],minHeight:sigH};
                     })(),
                     (()=>{const st=[{text:'23  Transportista / Carrier',fontSize:7,bold:true,color:cp.color,margin:[4,4,4,2]},{text:'Firma y sello',fontSize:6,color:'#b0a090',margin:[4,0,4,8]}];if(D.sigDriver&&D.sigDriver.startsWith('data:image')){st.push({image:D.sigDriver,fit:[100,40],alignment:'center',margin:[0,2,0,2]});}else{st.push({text:'',margin:[4,sigH-32,4,0]});}st.push({text:D.driverName||'',fontSize:6.5,alignment:'center',color:'#888',margin:[0,0,0,2]});return{stack:st,fillColor:WH,border:[true,true,true,true],minHeight:sigH};})(),
-                    {stack:[{text:'24  Destinatario / Consignee',fontSize:7,bold:true,color:cp.color,margin:[4,4,4,2]},{text:'Firma y sello (en entrega)',fontSize:6,color:'#b0a090',margin:[4,0,4,8]},{text:'',margin:[4,sigH-32,4,0]},{text:(D.rcvBlock||'').split('\n')[0]||'',fontSize:6.5,alignment:'center',color:'#888',margin:[0,0,0,2]}],fillColor:WH,border:[true,true,true,true],minHeight:sigH}
+                    (()=>{const st=[{text:'24  Destinatario / Consignee',fontSize:7,bold:true,color:cp.color,margin:[4,4,4,2]},{text:'Firma y sello (en entrega)',fontSize:6,color:'#b0a090',margin:[4,0,4,8]}];if(D.sigRcv&&D.sigRcv.startsWith('data:image')){st.push({image:D.sigRcv,fit:[100,40],alignment:'center',margin:[0,2,0,2]});}else{st.push({text:'',margin:[4,sigH-32,4,0]});}st.push({text:(D.rcvBlock||'').split('\n')[0]||'',fontSize:6.5,alignment:'center',color:'#888',margin:[0,0,0,2]});return{stack:st,fillColor:WH,border:[true,true,true,true],minHeight:sigH};})()
                 ]]},layout:lay,margin:[0,0,0,2]},
                 // Cláusulas
-                {table:{widths:['*',76],body:[[{stack:[
+                {table:{widths:['*',DECA_COL_W],body:[[{stack:[
                     {text:isNac?'CLÁUSULAS LEGALES (Ley 15/2009)':'CMR CONVENTION CONDITIONS',fontSize:6,bold:true,color:'#4a3828',margin:[4,4,4,2]},
                     {text:cl,fontSize:5.5,color:'#7a6a58',lineHeight:1.25,margin:[4,0,4,4]},
-                    ...((D.senderNIF||D.carrierNIF)?[{text:'DATOS NORMATIVOS · Ley 9/2025 / DeCA'+(D.senderNIF?'  ·  NIF Remitente: '+D.senderNIF:'')+(D.carrierNIF?'  ·  NIF Transportista: '+D.carrierNIF:''),fontSize:5.5,bold:true,color:'#4a3828',margin:[4,0,4,4]}]:[])
+                    ...((D.senderNIF||D.carrierNIF||_decaArt6Extra(D).length)?[
+                        {text:'DATOS NORMATIVOS · Ley 9/2025 / DeCA'+(D.senderNIF?'  ·  NIF Remitente: '+D.senderNIF:'')+(D.carrierNIF?'  ·  NIF Transportista: '+D.carrierNIF:''),fontSize:5.5,bold:true,color:'#4a3828',margin:[4,0,4,2]},
+                        ..._decaArt6Extra(D)
+                    ]:[])
                 ],fillColor:LBL,border:[false,false,false,false]},
                 {..._decaQRCell(D._deca||null), fillColor:(D._deca&&D._deca.qrDataURL)?WH:'#fef2f2', border:[true,true,true,true]}]]},layout:lay,margin:[0,0,0,2]},
                 // Pie
                 {columns:[
                     {text:(isNac?'CARTA PORTE ':'CMR N.º ')+num+(dateS?'  ·  '+dateS:'')+(D.placeEmission?'  ·  '+D.placeEmission:''),fontSize:6,color:'#b0a090'},
-                    {text:'Carta de Porte Zumo  ·  Generado digitalmente'+(D._deca?'  ·  Creado: '+new Date().toLocaleString('es-ES'):''),fontSize:6,color:'#b0a090',alignment:'right'}
+                    {text:'CARTA DE PORTE  ·  Generado digitalmente'+(D._deca?'  ·  Creado: '+new Date().toLocaleString('es-ES'):''),fontSize:6,color:'#b0a090',alignment:'right'}
                 ],margin:[0,3,0,0]}
             ]
         };
@@ -4028,13 +4204,13 @@ function buildPDF_IncoDocs(D, safetyTimer){
         pdfMake.createPdf({
             pageSize:'A4',pageMargins:[16,10,16,8],compress:true,content:allContent,
             defaultStyle:{font:'Roboto',fontSize:9,color:BLK},
-            info:{title:(isNac?'Carta Porte ':'CMR ')+num,author:'Carta de Porte Zumo',creationDate:new Date(),modDate:new Date()}
+            info:{title:(isNac?'Carta Porte ':'CMR ')+num,author:'CARTA DE PORTE',creationDate:new Date(),modDate:new Date()}
         }).getBlob(blob=>{
             clearTimeout(safetyTimer);showOv(false);
             const fname='CMR_INCODOCS_'+num.replace(/[^a-z0-9]/gi,'_')+'.pdf';
             _sharePDF(blob,fname,num,safetyTimer);
             const _decaUpI = D._deca || null;
-            if (_decaUpI) { _decaSubirPDF(blob, _decaUpI).then(res=>{ if(res.ok) toast('✓ DeCA publicado online','ok',3500); }); }
+            if (_decaUpI) { _decaSubirPDF(blob, _decaUpI).then(res=>{ if(res.ok) toast(res.registro && res.registro.esModificacion ? '✓ DeCA modificado y publicado (v'+res.registro.version+')' : '✓ DeCA publicado online','ok',3500); }); }
         });
     }catch(e){clearTimeout(safetyTimer);showOv(false);toast('⚠ Error: '+e.message,'err',6000);}
 }
@@ -4103,7 +4279,7 @@ import {
     reauthenticateWithCredential
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// ── Firebase config — CARTA ZUMO (BD independiente) ──
+// ── Firebase config — CARTA DE PORTE (BD independiente) ──
 const firebaseConfig = {
     apiKey: "AIzaSyCjVZeDvoGdkyFHveyuEz4Y3Uqbb_6hhVo",
     authDomain: "palets-camara.firebaseapp.com",
