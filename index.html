@@ -90,6 +90,8 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue-l);box-shadow:0 
 .dm-opt b{font-size:.82rem;display:block;margin-bottom:2px;}
 .dm-opt small{font-size:.7rem;color:var(--dim);font-weight:400;line-height:1.4;}
 .dm-ico{font-size:1.3rem;flex-shrink:0;}
+#install-modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:85;display:none;align-items:flex-end;justify-content:center;}
+#install-modal.on{display:flex;}
 #toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1a1209;color:#f5f0e8;padding:10px 16px;border-radius:10px;font-size:.78rem;z-index:90;opacity:0;transition:opacity .2s;pointer-events:none;max-width:85%;text-align:center;}
 #toast.on{opacity:1;}
 #tabs{position:sticky;top:calc(56px + env(safe-area-inset-top,0px));z-index:49;display:flex;background:var(--bg2);border-bottom:1px solid var(--line);}
@@ -139,7 +141,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue-l);box-shadow:0 
     </div>
   </div>
   <div class="chip"><span class="dot"></span> Offline listo</div>
-  <div class="chip" id="installChip" style="display:none;margin-left:7px;cursor:pointer;">⬇ Instalar</div>
+  <div class="chip" id="installChip" style="display:flex;margin-left:7px;cursor:pointer;">⬇ Instalar</div>
 </div>
 <div id="tabs">
   <div class="tab active" data-panel="nueva">Nueva carta</div>
@@ -277,6 +279,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--blue-l);box-shadow:0 
   <iframe id="pdfFrame"></iframe>
 </div>
 
+<div id="install-modal">
+  <div class="dm-sheet">
+    <h3>Instalar la aplicación</h3>
+    <div id="installDiag" style="font-size:.78rem;line-height:1.7;margin-bottom:14px;"></div>
+    <div class="dm-btns"><button class="dm-cancel" id="installClose">Cerrar</button></div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
@@ -291,15 +301,74 @@ let _downloadsNs = null;
 if ('serviceWorker' in navigator) { window.addEventListener('load', ()=> navigator.serviceWorker.register('./sw.js').catch(()=>{})); }
 
 let _deferredInstall = null;
-window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); _deferredInstall = e; document.getElementById('installChip').style.display = 'flex'; });
+const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+if (_isStandalone) document.getElementById('installChip').style.display = 'none';
+window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); _deferredInstall = e; });
+
+/* Diagnóstico: explica por qué no se puede instalar (o cómo hacerlo) */
+async function diagnosticoInstalacion(){
+  const out = [];
+  const ok = t => out.push('✅ ' + t);
+  const ko = t => out.push('❌ ' + t);
+  const ua = navigator.userAgent;
+  const isIOS = /iPhone|iPad|iPod/.test(ua);
+  const inApp = /; wv\)|FBAN|FBAV|Instagram|WhatsApp|Line\/|MicroMessenger|GSA\//.test(ua);
+
+  (location.protocol === 'https:' || location.hostname === 'localhost') ? ok('Conexión segura (https)') : ko('La página no está en https: no se puede instalar');
+  inApp ? ko('Estás en un navegador integrado de otra app: copia el enlace y ábrelo en Chrome') : ok('Navegador normal');
+
+  const link = document.querySelector('link[rel="manifest"]');
+  if (!link) { ko('Falta el enlace al manifest en el HTML'); }
+  else {
+    try {
+      const r = await fetch(link.href, { cache:'no-store' });
+      if (!r.ok) ko('manifest.json no se encuentra (error ' + r.status + ')');
+      else {
+        const m = await r.json();
+        ok('manifest.json correcto');
+        const sizes = {};
+        for (const ic of (m.icons || [])) {
+          const url = new URL(ic.src, link.href).href;
+          if (sizes[url] !== undefined) continue;
+          try { const ri = await fetch(url, { cache:'no-store' }); sizes[url] = ri.ok; }
+          catch(e){ sizes[url] = false; }
+          const nombre = ic.src.split('/').pop();
+          sizes[url] ? ok('Icono ' + nombre + ' encontrado') : ko('Icono ' + nombre + ' NO se encuentra: súbelo al repositorio');
+        }
+        const tiene = px => (m.icons || []).some(i => (i.sizes || '').includes(px));
+        if (!tiene('192x192') || !tiene('512x512')) ko('El manifest necesita iconos de 192x192 y 512x512');
+      }
+    } catch(e) { ko('No se pudo leer manifest.json'); }
+  }
+
+  if (!('serviceWorker' in navigator)) ko('Este navegador no admite service worker');
+  else {
+    const reg = await navigator.serviceWorker.getRegistration();
+    reg ? ok('Service worker registrado') : ko('Service worker NO registrado (¿falta sw.js en el repositorio?)');
+  }
+
+  if (_deferredInstall) ok('El navegador permite instalar ahora mismo');
+  else if (!isIOS) out.push('ℹ️ Chrome todavía no ofrece instalar (a veces tarda unos segundos, o ya está instalada)');
+
+  out.push('<br><b>' + (isIOS
+    ? 'iPhone: abre en Safari → botón Compartir → «Añadir a pantalla de inicio».'
+    : 'Android: abre en Chrome → menú ⋮ → «Instalar aplicación».') + '</b>');
+  document.getElementById('installDiag').innerHTML = out.map(l => '<div>' + l + '</div>').join('');
+}
+
 document.getElementById('installChip').onclick = async ()=>{
-  if (!_deferredInstall) return;
-  _deferredInstall.prompt();
-  const { outcome } = await _deferredInstall.userChoice;
-  if (outcome === 'accepted') toast('✓ App instalada');
-  _deferredInstall = null;
-  document.getElementById('installChip').style.display = 'none';
+  if (_deferredInstall) {
+    _deferredInstall.prompt();
+    const { outcome } = await _deferredInstall.userChoice;
+    if (outcome === 'accepted') toast('✓ App instalada');
+    _deferredInstall = null;
+    return;
+  }
+  document.getElementById('installDiag').innerHTML = 'Comprobando…';
+  document.getElementById('install-modal').classList.add('on');
+  diagnosticoInstalacion();
 };
+document.getElementById('installClose').onclick = ()=> document.getElementById('install-modal').classList.remove('on');
 window.addEventListener('appinstalled', ()=> document.getElementById('installChip').style.display = 'none');
 
 function toast(msg, ms){
