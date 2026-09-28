@@ -1,16 +1,15 @@
 {
-  "id": "porte-nacional",
-  "name": "Porte Nacional",
-  "short_name": "Porte Nal.",
-  "description": "Carta de porte nacional para chofer — DeCA / Ley 9/2025",
+  "name": "Carta de Porte Zumo",
+  "short_name": "Carta Zumo",
+  "description": "Cartas de porte nacionales y CMR con DeCA (Ley 9/2025)",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#1a1209",
-  "theme_color": "#1a1209",
   "orientation": "portrait",
+  "background_color": "#faf8f3",
+  "theme_color": "#e0621e",
   "icons": [
-    { "src": "./icon-192-2.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "./icon-512-2.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
