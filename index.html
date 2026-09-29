@@ -1709,7 +1709,9 @@ function condQRDataURL(url){
     for (let r=0;r<n;r++) for (let k=0;k<n;k++) if (qr.isDark(r,k)) x.fillRect(mg+k*cell, mg+r*cell, cell, cell);
     return c.toDataURL('image/png');
 }
+window._cdMap = {};
 function card(r, deca){
+    const key = 'k' + Object.keys(window._cdMap).length; window._cdMap[key] = {r, deca};
     const g = (r.goodsLines && r.goodsLines[0]) || {};
     const kg = r.pesoNeto || r.pesoBruto || g.weight || '';
     const ruta = [r.placeLoading, r.placeDelivery].filter(Boolean).map(esc).join(' → ') || 'Sin ruta';
@@ -1717,15 +1719,17 @@ function card(r, deca){
     const btns = deca ? `
         <a class="cd-btn main" href="${esc(deca.url.split('?')[0])}" target="_blank" rel="noopener">VER DeCA</a>
         <button class="cd-btn" onclick="showCondQR('${esc(deca.uuid)}')">MOSTRAR QR</button>
+        <button class="cd-btn" onclick="shareCond('${key}')">📲 ENVIAR AL CONDUCTOR</button>
         <a class="cd-btn" href="${esc(deca.url)}" download="${esc(deca.fname)}">DESCARGAR PDF</a>`
       : `<div class="cd-warn">⚠ DeCA aún no emitido — no válido como documento de control</div>`;
     return `<div class="cd-card"><div class="cd-num">${esc(r.docNum || 'Sin N.º')}</div>
         <div class="cd-route">${ruta}</div>
         ${mercancia ? `<div class="cd-goods">${mercancia}</div>` : ''}${btns}</div>`;
 }
-const renderConductorLocal = async function(){
+window.renderConductor = async function(){
     const box = document.getElementById('cd-list'); if (!box) return;
     try {
+        window._cdMap = {};
         const [docs, decas] = await Promise.all([_idbAll(STORE), _idbAll(DECA)]);
         const byNum = {}; window._condDecas = {};
         decas.forEach(d => { window._condDecas[d.uuid] = d; if (!byNum[d.docNum] || d.version > byNum[d.docNum].version) byNum[d.docNum] = d; });
@@ -1740,76 +1744,19 @@ const renderConductorLocal = async function(){
             + (prev.length ? `<details><summary class="cd-h" style="cursor:pointer">ANTERIORES (${prev.length})</summary>${prev.map(r => card(r, byNum[r.docNum])).join('')}</details>` : '');
     } catch(e) { box.innerHTML = '<div class="hist-empty">No se pudieron leer los transportes</div>'; }
 };
-const cdRPC = (fn, body) => {
-    const k = window.SUPA_ANON_LEGACY || window.SUPA_KEY;
-    return fetch(window.SUPA_URL + '/rest/v1/rpc/' + fn, {
-        method: 'POST',
-        headers: {'apikey': k, 'Authorization': 'Bearer ' + k, 'Content-Type': 'application/json'},
-        body: JSON.stringify(body)
-    });
-};
-window.condPublish = function(d, deca){
-    if (!d || !d.docNum) return;
-    const g = (d.goodsLines && d.goodsLines[0]) || {};
-    const p = {doc_num: d.docNum};
-    if (d.driverDNI) p.driver_dni = d.driverDNI;
-    if (d.placeLoading) p.origen = d.placeLoading;
-    if (d.placeDelivery) p.destino = d.placeDelivery;
-    if (d.dateTransport || d.docDate) p.fecha = d.dateTransport || d.docDate;
-    if (g.desc) p.mercancia = g.desc;
-    const kg = d.pesoNeto || d.pesoBruto || g.weight; if (kg) p.kg = kg;
-    if (deca) { p.deca_url = deca.url; p.deca_fname = deca.fname; p.deca_uuid = deca.uuid; }
-    cdRPC('publicar_transporte', {p}).then(r => { if (!r.ok) console.warn('Sync conductor HTTP', r.status); })
-        .catch(e => console.warn('Sync conductor:', e));
-};
-window.condLogin = function(){
-    const dni = document.getElementById('cd-dni').value.replace(/\s/g,'').toUpperCase();
-    const pin = document.getElementById('cd-pin').value.trim();
-    if (!dni || !pin) return;
-    try { localStorage.setItem('cd_cred', JSON.stringify({dni, pin})); localStorage.removeItem('cd_cache'); } catch(e) {}
-    renderConductor();
-};
-window.condLogout = function(){
-    try { localStorage.removeItem('cd_cred'); localStorage.removeItem('cd_cache'); } catch(e) {}
-    renderConductor();
-};
-window.renderConductor = async function(){
-    const box = document.getElementById('cd-list'); if (!box) return;
-    let cred = null; try { cred = JSON.parse(localStorage.getItem('cd_cred') || 'null'); } catch(e) {}
-    if (!cred) {
-        await renderConductorLocal();
-        box.insertAdjacentHTML('afterbegin', `<div class="cd-card"><div class="cd-num">ACCESO CONDUCTOR</div>
-            <input id="cd-dni" type="text" placeholder="DNI" autocapitalize="characters" style="width:100%;margin-top:10px"/>
-            <input id="cd-pin" type="password" inputmode="numeric" placeholder="PIN" style="width:100%;margin-top:10px"/>
-            <button class="cd-btn main" onclick="condLogin()">ENTRAR</button></div>`);
-        return;
-    }
-    let rows = null, note = '';
+window.shareCond = async function(key){
+    const e = (window._cdMap||{})[key]; if (!e || !e.deca) return;
+    const r = e.r, g = (r.goodsLines && r.goodsLines[0]) || {};
+    const p = {n: r.docNum || '', o: r.placeLoading || '', d: r.placeDelivery || '', m: g.desc || '',
+        k: r.pesoNeto || r.pesoBruto || g.weight || '', f: r.dateTransport || r.docDate || '',
+        u: e.deca.url, fn: e.deca.fname, id: e.deca.uuid};
+    const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+    const url = new URL('conductor.html', location.href).href + '#c=' + b64;
+    const text = 'Transporte ' + p.n + (p.d ? ' → ' + p.d : '');
     try {
-        const r = await cdRPC('mis_transportes', {p_dni: cred.dni, p_pin: cred.pin});
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        rows = await r.json();
-        localStorage.setItem('cd_cache', JSON.stringify({t: Date.now(), rows}));
-    } catch(e) {
-        try { const c = JSON.parse(localStorage.getItem('cd_cache') || 'null'); if (c) { rows = c.rows; note = 'Sin conexión · datos de ' + new Date(c.t).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}); } } catch(e2) {}
-    }
-    const out = `<button class="cd-btn" style="width:auto;padding:8px 14px;float:right;margin:0" onclick="condLogout()">Salir</button>`;
-    if (!rows) { box.innerHTML = out + '<div class="hist-empty">No se pudo cargar. Comprueba conexión.</div>'; return; }
-    if (!rows.length && !note) { box.innerHTML = out + '<div class="hist-empty">Sin transportes (o DNI/PIN incorrectos)</div>'; return; }
-    window._condDecas = {};
-    const items = rows.map(t => {
-        const ok = t.deca_url && String(t.deca_url).indexOf(window.SUPA_URL) === 0;
-        if (ok) window._condDecas[t.deca_uuid] = {uuid: t.deca_uuid, url: t.deca_url, fname: t.deca_fname, docNum: t.doc_num};
-        return {fecha: t.fecha,
-            html: card({docNum: t.doc_num, placeLoading: t.origen, placeDelivery: t.destino, pesoNeto: t.kg, goodsLines: [{desc: t.mercancia}]},
-                       ok ? window._condDecas[t.deca_uuid] : null)};
-    });
-    const today = isoDay(new Date());
-    const hoy = items.filter(i => i.fecha === today), prev = items.filter(i => i.fecha !== today);
-    const f = new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long'}).toUpperCase();
-    box.innerHTML = out + `<div class="cd-h">🚛 MIS TRANSPORTES<br>HOY · ${esc(f)}</div>` + (note ? `<div class="cd-warn">${esc(note)}</div>` : '')
-        + (hoy.length ? hoy.map(i => i.html).join('') : '<div class="hist-empty">No hay transportes para hoy</div>')
-        + (prev.length ? `<details><summary class="cd-h" style="cursor:pointer">ANTERIORES (${prev.length})</summary>${prev.map(i => i.html).join('')}</details>` : '');
+        if (navigator.share) await navigator.share({title: 'Transporte ' + p.n, text, url});
+        else { await navigator.clipboard.writeText(url); toast('✓ Enlace copiado','ok',3000); }
+    } catch(err) { if (err && err.name !== 'AbortError') { try { await navigator.clipboard.writeText(url); toast('✓ Enlace copiado','ok',3000); } catch(e2) {} } }
 };
 window.showCondQR = function(uuid){
     const d = (window._condDecas||{})[uuid]; if (!d) return;
@@ -3088,7 +3035,6 @@ async function _decaLog(deca, docNum) {
         };
         const id = await _idbAdd(DECA, rec);
         rec.id = id;
-        try { condPublish({docNum: docNum}, rec); } catch(e) {}
         return rec;
     } catch (e) {
         console.warn('Registro DeCA:', e);
@@ -3405,7 +3351,6 @@ async function generateCMR(){
     } else {
         clearDraft();
     }
-    try { condPublish(data); } catch(e) {}
     showOv(true);
     const safetyTimer=setTimeout(()=>{showOv(false);toast('⚠ Tiempo agotado','err',5000)},60000);
     try{buildPDF_withSello(data,safetyTimer);}catch(err){clearTimeout(safetyTimer);showOv(false);toast('⚠ Error: '+err.message,'err',6000);}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#1a1009"/>
+<title>Mis transportes</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.js"></script>
+<style>
+:root{--bg:#f2ede3;--card:#faf8f3;--line:#d6cfc0;--dim:#7a6e5e;--acc:#e0621e;--txt:#1a1209}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,sans-serif;padding:max(16px,env(safe-area-inset-top)) 14px 40px}
+main{max-width:600px;margin:0 auto}
+h1{font-size:.75rem;letter-spacing:.1em;color:var(--dim);font-family:ui-monospace,monospace;font-weight:600;line-height:1.7}
+.c{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.n{font-family:ui-monospace,monospace;font-size:.75rem;color:var(--dim)}
+.r{font-size:1.25rem;font-weight:800;margin:6px 0 2px;line-height:1.25}
+.g{margin-top:8px}
+.b{display:block;width:100%;padding:15px;margin-top:10px;border-radius:12px;border:1px solid var(--line);background:#e8e0d0;font:inherit;font-weight:800;font-size:.9rem;color:inherit;text-align:center;text-decoration:none}
+.b.m{background:var(--acc);border-color:var(--acc);color:#fff}
+.x{background:none;border:0;color:var(--dim);font-size:.75rem;margin-top:8px;padding:6px 0}
+.e{text-align:center;color:var(--dim);padding:50px 10px}
+summary{cursor:pointer;margin:14px 0}
+#q{position:fixed;inset:0;background:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+#q img{width:min(88vw,88vh);image-rendering:pixelated}
+#q button{margin-top:18px;padding:14px 32px;border:0;border-radius:12px;background:#111;color:#fff;font:inherit;font-weight:800}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<div id="q"><img id="qi" alt="QR DeCA"/><div id="qn" class="n" style="margin-top:10px"></div><button onclick="document.getElementById('q').style.display='none'">Cerrar</button></div>
+<script>
+const KEY='cd_items', ORIGIN='https://yvmakyfjdqbdapotkryd.supabase.co/storage/';
+const esc=x=>String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return[]}};
+const save=a=>{try{localStorage.setItem(KEY,JSON.stringify(a))}catch(e){}};
+function qrURL(url){
+  const q=qrcode(0,'M');q.addData(url);q.make();
+  const n=q.getModuleCount(),c=12,m=48,sz=n*c+m*2,cv=document.createElement('canvas');cv.width=cv.height=sz;
+  const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,sz,sz);x.fillStyle='#000';
+  for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(q.isDark(r,k))x.fillRect(m+k*c,m+r*c,c,c);
+  return cv.toDataURL('image/png');
+}
+function ingest(){
+  const m=location.hash.match(/^#c=(.+)$/); if(!m) return;
+  history.replaceState(null,'',location.pathname);
+  try{
+    let b=m[1].replace(/-/g,'+').replace(/_/g,'/'); while(b.length%4) b+='=';
+    const p=JSON.parse(decodeURIComponent(escape(atob(b))));
+    if(!p.n||!p.u||p.u.indexOf(ORIGIN)!==0) return;
+    try{p.qr=qrURL(p.u);}catch(e){}
+    p.added=Date.now();
+    const a=load().filter(t=>t.n!==p.n); a.unshift(p); save(a);
+  }catch(e){}
+}
+function card(t,i){
+  const g=[t.m,t.k?t.k+' kg':''].filter(Boolean).map(esc).join(' · ');
+  const ruta=[t.o,t.d].filter(Boolean).map(esc).join(' → ')||'Sin ruta';
+  return `<div class="c"><div class="n">${esc(t.n)}</div><div class="r">${ruta}</div>${g?`<div class="g">${g}</div>`:''}
+    <a class="b m" href="${esc(t.u.split('?')[0])}" target="_blank" rel="noopener">VER DeCA</a>
+    <button class="b" onclick="qr(${i})">MOSTRAR QR</button>
+    <a class="b" href="${esc(t.u)}" download="${esc(t.fn)}">DESCARGAR PDF</a>
+    <button class="x" onclick="del(${i})">Quitar de mi lista</button></div>`;
+}
+window.qr=i=>{const t=load()[i];if(!t)return;let s=t.qr;if(!s){try{s=qrURL(t.u)}catch(e){return}}
+  document.getElementById('qi').src=s;document.getElementById('qn').textContent=t.n;document.getElementById('q').style.display='flex';};
+window.del=i=>{const a=load();a.splice(i,1);save(a);render();};
+function render(){
+  const cut=Date.now()-14*864e5, a=load().filter(t=>t.added>cut); save(a);
+  const today=new Date().toISOString().slice(0,10);
+  const hoy=[],prev=[]; a.forEach((t,i)=>((!t.f||t.f>=today)?hoy:prev).push(card(t,i)));
+  const f=new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long'}).toUpperCase();
+  document.getElementById('app').innerHTML=`<h1>🚛 MIS TRANSPORTES<br>HOY · ${esc(f)}</h1>`
+    +(hoy.length?hoy.join(''):'<div class="e">No hay transportes para hoy.<br>Abre el enlace que te envíen para añadir uno.</div>')
+    +(prev.length?`<details><summary class="n">ANTERIORES (${prev.length})</summary>${prev.join('')}</details>`:'');
+}
+ingest();render();
+</script>
+</body>
+</html>
