@@ -1086,6 +1086,20 @@ select {
     #autosave-bar { top: 62px; }
 }
     </style>
+<style>
+.cd-h{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.08em;color:var(--dim);margin:4px 0 12px}
+.cd-card{background:var(--bg2);border:1px solid var(--bg4);border-radius:14px;padding:16px;margin-bottom:14px}
+.cd-num{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--dim)}
+.cd-route{font-size:1.25rem;font-weight:800;margin:6px 0 2px;line-height:1.25}
+.cd-goods{font-size:.95rem;margin-top:8px}
+.cd-btn{display:block;width:100%;padding:15px;margin-top:10px;border-radius:12px;border:1px solid var(--bg4);background:var(--bg3);font:inherit;font-weight:800;font-size:.9rem;color:inherit;text-align:center;text-decoration:none;cursor:pointer}
+.cd-btn.main{background:var(--blue-l);border-color:var(--blue-l);color:#fff}
+.cd-btn.off{opacity:.45;pointer-events:none}
+.cd-warn{font-size:.72rem;color:var(--amber);margin-top:10px}
+#cd-qr{position:fixed;inset:0;z-index:9999;background:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;color:#000}
+#cd-qr img{width:min(88vw,88vh);height:auto;image-rendering:pixelated}
+#cd-qr button{margin-top:18px;padding:14px 32px;border-radius:12px;border:0;background:#111;color:#fff;font:inherit;font-weight:800}
+</style>
 </head>
 <body>
 
@@ -1163,6 +1177,7 @@ select {
         <div class="tab"        role="tab" tabindex="0" aria-selected="false" aria-controls="panel-agenda" data-p="agenda" onclick="tab('agenda')" onkeydown="if(event.key==='Enter'||event.key===' ')tab('agenda')">Agenda</div>
         <div class="tab"        role="tab" tabindex="0" aria-selected="false" aria-controls="panel-tmpl"   data-p="tmpl"   onclick="tab('tmpl')"   onkeydown="if(event.key==='Enter'||event.key===' ')tab('tmpl')">Plantillas</div>
         <div class="tab"        role="tab" tabindex="0" aria-selected="false" aria-controls="panel-cfg"    data-p="cfg"    onclick="tab('cfg')"    onkeydown="if(event.key==='Enter'||event.key===' ')tab('cfg')">Config</div>
+        <div class="tab" role="tab" tabindex="0" aria-selected="false" aria-controls="panel-cond" data-p="cond" onclick="tab('cond')" onkeydown="if(event.key==='Enter'||event.key===' ')tab('cond')">🚛 Conductor</div>
     </div>
 
     <!-- ── Panel: Documento ── -->
@@ -1308,6 +1323,10 @@ select {
     </div>
 
     <!-- ── Panel: Config ── -->
+    <!-- ── Panel: Vista Conductor ── -->
+    <div id="panel-cond" role="tabpanel" class="panel"><div id="cd-list"></div></div>
+    <div id="cd-qr"><img id="cd-qr-img" alt="QR DeCA"/><div id="cd-qr-num" class="cd-num" style="margin-top:10px"></div><button onclick="closeCondQR()">Cerrar</button></div>
+
     <div id="panel-cfg" role="tabpanel" class="panel">
         <div class="block"><div class="bhead"><span class="btag a">NUM</span><span class="btitle">Numeración Automática</span></div><div class="bbody">
             <div class="hint">El número se genera como <b>PREFIJO-AAAAMMDD-XXXX</b> donde XXXX son las <b>4 últimas cifras del albarán</b>.</div>
@@ -1678,6 +1697,129 @@ window.closeBS = () => document.getElementById('bs-bg').classList.remove('on');
 document.getElementById('bs-bg')?.addEventListener('click', e => { if (e.target === e.currentTarget) closeBS(); });
 
 // ── Tabs ──────────────────────────────────────────────────────
+// ══ Vista Conductor ══
+(function(){
+const esc = x => String(x == null ? '' : x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const isoDay = d => d.toISOString().slice(0,10);
+function condQRDataURL(url){
+    const qr = qrcode(0,'M'); qr.addData(url); qr.make();
+    const n = qr.getModuleCount(), cell = 12, mg = 4*cell, size = n*cell + mg*2;
+    const c = document.createElement('canvas'); c.width = c.height = size;
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0,0,size,size); x.fillStyle = '#000';
+    for (let r=0;r<n;r++) for (let k=0;k<n;k++) if (qr.isDark(r,k)) x.fillRect(mg+k*cell, mg+r*cell, cell, cell);
+    return c.toDataURL('image/png');
+}
+function card(r, deca){
+    const g = (r.goodsLines && r.goodsLines[0]) || {};
+    const kg = r.pesoNeto || r.pesoBruto || g.weight || '';
+    const ruta = [r.placeLoading, r.placeDelivery].filter(Boolean).map(esc).join(' → ') || 'Sin ruta';
+    const mercancia = [g.desc, kg ? kg + ' kg' : ''].filter(Boolean).map(esc).join(' · ');
+    const btns = deca ? `
+        <a class="cd-btn main" href="${esc(deca.url.split('?')[0])}" target="_blank" rel="noopener">VER DeCA</a>
+        <button class="cd-btn" onclick="showCondQR('${esc(deca.uuid)}')">MOSTRAR QR</button>
+        <a class="cd-btn" href="${esc(deca.url)}" download="${esc(deca.fname)}">DESCARGAR PDF</a>`
+      : `<div class="cd-warn">⚠ DeCA aún no emitido — no válido como documento de control</div>`;
+    return `<div class="cd-card"><div class="cd-num">${esc(r.docNum || 'Sin N.º')}</div>
+        <div class="cd-route">${ruta}</div>
+        ${mercancia ? `<div class="cd-goods">${mercancia}</div>` : ''}${btns}</div>`;
+}
+const renderConductorLocal = async function(){
+    const box = document.getElementById('cd-list'); if (!box) return;
+    try {
+        const [docs, decas] = await Promise.all([_idbAll(STORE), _idbAll(DECA)]);
+        const byNum = {}; window._condDecas = {};
+        decas.forEach(d => { window._condDecas[d.uuid] = d; if (!byNum[d.docNum] || d.version > byNum[d.docNum].version) byNum[d.docNum] = d; });
+        const day = r => r.dateTransport || r.docDate || (r.savedAt||'').slice(0,10);
+        const today = isoDay(new Date());
+        const sorted = docs.slice().sort((a,b) => (b.savedAt||'').localeCompare(a.savedAt||''));
+        const hoy = sorted.filter(r => day(r) === today);
+        const prev = sorted.filter(r => day(r) < today).slice(0,5);
+        const f = new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long'}).toUpperCase();
+        box.innerHTML = `<div class="cd-h">🚛 MIS TRANSPORTES<br>HOY · ${esc(f)}</div>`
+            + (hoy.length ? hoy.map(r => card(r, byNum[r.docNum])).join('') : '<div class="hist-empty">No hay transportes para hoy</div>')
+            + (prev.length ? `<details><summary class="cd-h" style="cursor:pointer">ANTERIORES (${prev.length})</summary>${prev.map(r => card(r, byNum[r.docNum])).join('')}</details>` : '');
+    } catch(e) { box.innerHTML = '<div class="hist-empty">No se pudieron leer los transportes</div>'; }
+};
+const cdRPC = (fn, body) => {
+    const k = window.SUPA_ANON_LEGACY || window.SUPA_KEY;
+    return fetch(window.SUPA_URL + '/rest/v1/rpc/' + fn, {
+        method: 'POST',
+        headers: {'apikey': k, 'Authorization': 'Bearer ' + k, 'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+    });
+};
+window.condPublish = function(d, deca){
+    if (!d || !d.docNum) return;
+    const g = (d.goodsLines && d.goodsLines[0]) || {};
+    const p = {doc_num: d.docNum};
+    if (d.driverDNI) p.driver_dni = d.driverDNI;
+    if (d.placeLoading) p.origen = d.placeLoading;
+    if (d.placeDelivery) p.destino = d.placeDelivery;
+    if (d.dateTransport || d.docDate) p.fecha = d.dateTransport || d.docDate;
+    if (g.desc) p.mercancia = g.desc;
+    const kg = d.pesoNeto || d.pesoBruto || g.weight; if (kg) p.kg = kg;
+    if (deca) { p.deca_url = deca.url; p.deca_fname = deca.fname; p.deca_uuid = deca.uuid; }
+    cdRPC('publicar_transporte', {p}).then(r => { if (!r.ok) console.warn('Sync conductor HTTP', r.status); })
+        .catch(e => console.warn('Sync conductor:', e));
+};
+window.condLogin = function(){
+    const dni = document.getElementById('cd-dni').value.replace(/\s/g,'').toUpperCase();
+    const pin = document.getElementById('cd-pin').value.trim();
+    if (!dni || !pin) return;
+    try { localStorage.setItem('cd_cred', JSON.stringify({dni, pin})); localStorage.removeItem('cd_cache'); } catch(e) {}
+    renderConductor();
+};
+window.condLogout = function(){
+    try { localStorage.removeItem('cd_cred'); localStorage.removeItem('cd_cache'); } catch(e) {}
+    renderConductor();
+};
+window.renderConductor = async function(){
+    const box = document.getElementById('cd-list'); if (!box) return;
+    let cred = null; try { cred = JSON.parse(localStorage.getItem('cd_cred') || 'null'); } catch(e) {}
+    if (!cred) {
+        await renderConductorLocal();
+        box.insertAdjacentHTML('afterbegin', `<div class="cd-card"><div class="cd-num">ACCESO CONDUCTOR</div>
+            <input id="cd-dni" type="text" placeholder="DNI" autocapitalize="characters" style="width:100%;margin-top:10px"/>
+            <input id="cd-pin" type="password" inputmode="numeric" placeholder="PIN" style="width:100%;margin-top:10px"/>
+            <button class="cd-btn main" onclick="condLogin()">ENTRAR</button></div>`);
+        return;
+    }
+    let rows = null, note = '';
+    try {
+        const r = await cdRPC('mis_transportes', {p_dni: cred.dni, p_pin: cred.pin});
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        rows = await r.json();
+        localStorage.setItem('cd_cache', JSON.stringify({t: Date.now(), rows}));
+    } catch(e) {
+        try { const c = JSON.parse(localStorage.getItem('cd_cache') || 'null'); if (c) { rows = c.rows; note = 'Sin conexión · datos de ' + new Date(c.t).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}); } } catch(e2) {}
+    }
+    const out = `<button class="cd-btn" style="width:auto;padding:8px 14px;float:right;margin:0" onclick="condLogout()">Salir</button>`;
+    if (!rows) { box.innerHTML = out + '<div class="hist-empty">No se pudo cargar. Comprueba conexión.</div>'; return; }
+    if (!rows.length && !note) { box.innerHTML = out + '<div class="hist-empty">Sin transportes (o DNI/PIN incorrectos)</div>'; return; }
+    window._condDecas = {};
+    const items = rows.map(t => {
+        const ok = t.deca_url && String(t.deca_url).indexOf(window.SUPA_URL) === 0;
+        if (ok) window._condDecas[t.deca_uuid] = {uuid: t.deca_uuid, url: t.deca_url, fname: t.deca_fname, docNum: t.doc_num};
+        return {fecha: t.fecha,
+            html: card({docNum: t.doc_num, placeLoading: t.origen, placeDelivery: t.destino, pesoNeto: t.kg, goodsLines: [{desc: t.mercancia}]},
+                       ok ? window._condDecas[t.deca_uuid] : null)};
+    });
+    const today = isoDay(new Date());
+    const hoy = items.filter(i => i.fecha === today), prev = items.filter(i => i.fecha !== today);
+    const f = new Date().toLocaleDateString('es-ES',{day:'numeric',month:'long'}).toUpperCase();
+    box.innerHTML = out + `<div class="cd-h">🚛 MIS TRANSPORTES<br>HOY · ${esc(f)}</div>` + (note ? `<div class="cd-warn">${esc(note)}</div>` : '')
+        + (hoy.length ? hoy.map(i => i.html).join('') : '<div class="hist-empty">No hay transportes para hoy</div>')
+        + (prev.length ? `<details><summary class="cd-h" style="cursor:pointer">ANTERIORES (${prev.length})</summary>${prev.map(i => i.html).join('')}</details>` : '');
+};
+window.showCondQR = function(uuid){
+    const d = (window._condDecas||{})[uuid]; if (!d) return;
+    document.getElementById('cd-qr-img').src = condQRDataURL(d.url);
+    document.getElementById('cd-qr-num').textContent = d.docNum;
+    document.getElementById('cd-qr').style.display = 'flex';
+};
+window.closeCondQR = function(){ document.getElementById('cd-qr').style.display = 'none'; };
+})();
+
 window.tab = function(n) {
     document.querySelectorAll('.tab').forEach(t => {
         const active = t.dataset.p === n;
@@ -1689,6 +1831,7 @@ window.tab = function(n) {
     if (n === 'agenda') renderAgenda();
     if (n === 'tmpl')   renderTemplates();
     if (n === 'cfg')    { syncCfgPanel(); renderDecaLog(); }
+    if (n === 'cond')   renderConductor();
 };
 
 // ── Field helpers ─────────────────────────────────────────────
@@ -2945,6 +3088,7 @@ async function _decaLog(deca, docNum) {
         };
         const id = await _idbAdd(DECA, rec);
         rec.id = id;
+        try { condPublish({docNum: docNum}, rec); } catch(e) {}
         return rec;
     } catch (e) {
         console.warn('Registro DeCA:', e);
@@ -3261,6 +3405,7 @@ async function generateCMR(){
     } else {
         clearDraft();
     }
+    try { condPublish(data); } catch(e) {}
     showOv(true);
     const safetyTimer=setTimeout(()=>{showOv(false);toast('⚠ Tiempo agotado','err',5000)},60000);
     try{buildPDF_withSello(data,safetyTimer);}catch(err){clearTimeout(safetyTimer);showOv(false);toast('⚠ Error: '+err.message,'err',6000);}
