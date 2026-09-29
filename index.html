@@ -1334,6 +1334,24 @@ select {
                 <div class="fr"><label>Prefijo CMR Internacional</label><input id="cfgPrefix" type="text" placeholder="CMR" maxlength="8" oninput="updateNumPreview()"/></div>
                 <div class="fr"><label>Prefijo Carta Nacional</label><input id="cfgPrefixNacional" type="text" placeholder="CP" maxlength="8" oninput="updateNumPreview()"/></div>
             </div>
+            <div class="fr" style="margin-top:12px"><label>Sistema de numeración</label>
+                <select id="cfgNumMode" onchange="updateNumPreview()">
+                    <option value="fecha">Fecha + albarán (PREFIJO-AAAAMMDD-XXXX)</option>
+                    <option value="correlativo">Correlativo (PREFIJO-AAAA-0001)</option>
+                </select></div>
+            <div id="cfgNumCorr" style="display:none">
+                <div class="fr2">
+                    <div class="fr"><label>Separador</label><select id="cfgNumSep" onchange="updateNumPreview()"><option value="-">Guion  -</option><option value=".">Punto  .</option><option value="_">Guion bajo  _</option><option value="">Ninguno</option></select></div>
+                    <div class="fr"><label>Cifras del número</label><input id="cfgNumDigits" type="number" min="1" max="8" placeholder="4" oninput="updateNumPreview()"/></div>
+                </div>
+                <div class="fr2">
+                    <div class="fr"><label>Próximo n.º Carta Nacional</label><input id="cfgNumNextNac" type="number" min="1" placeholder="1" oninput="updateNumPreview()"/></div>
+                    <div class="fr"><label>Próximo n.º CMR Internacional</label><input id="cfgNumNextCmr" type="number" min="1" placeholder="1" oninput="updateNumPreview()"/></div>
+                </div>
+                <label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-size:.8rem"><input id="cfgNumIncYear" type="checkbox" checked onchange="updateNumPreview()"/> Incluir el año en el número</label>
+                <label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:.8rem"><input id="cfgNumReset" type="checkbox" checked onchange="updateNumPreview()"/> Reiniciar la cuenta a 1 cada año</label>
+                <div class="hint" style="margin-top:8px">El contador sube al emitir un documento con número automático. Los números escritos a mano no gastan número. Pulsa <b>Guardar</b> en esta pestaña para aplicar los cambios.</div>
+            </div>
             <div style="font-size:.7rem;color:var(--dim);margin-top:4px" id="numPreview"></div>
         </div></div>
 
@@ -1885,9 +1903,24 @@ window.addEventListener('resize', () => {
 });
 
 // ── Numeración ────────────────────────────────────────────────
+window._numKeys = t => t === 'nacional' ? {n:'numNextNac', y:'numYearNac'} : {n:'numNextCmr', y:'numYearCmr'};
+window._numNext = function(cfg, tipo) {
+    const k = _numKeys(tipo);
+    let n = parseInt(cfg[k.n], 10); if (!(n > 0)) n = 1;
+    if (cfg.numReset !== false && cfg[k.y] && cfg[k.y] !== new Date().getFullYear()) n = 1;
+    return n;
+};
+window.genDocNumCorrelativo = function(cfg, tipo) {
+    const prefix = tipo === 'nacional' ? (cfg.prefixNacional || 'CP') : (cfg.prefix || 'CMR');
+    const sep = cfg.numSep == null ? '-' : cfg.numSep;
+    const digits = Math.min(8, Math.max(1, parseInt(cfg.numDigits, 10) || 4));
+    const yr = cfg.numIncYear !== false ? new Date().getFullYear() + sep : '';
+    return prefix + sep + yr + String(_numNext(cfg, tipo)).padStart(digits, '0');
+};
 window.genDocNum = function() {
     const cfg = JSON.parse(localStorage.getItem('zumo_cfg') || '{}');
     const tipoDoc = (document.getElementById('tipoDoc')?.value || 'cmr');
+    if ((cfg.numMode || 'fecha') === 'correlativo') return genDocNumCorrelativo(cfg, tipoDoc);
     const prefix = tipoDoc === 'nacional'
         ? (cfg.prefixNacional || 'CP')
         : (cfg.prefix || 'CMR');
@@ -1902,7 +1935,7 @@ window.updateDocNum = function() {
     const inp = document.getElementById('docNum');
     if (inp && !inp.readOnly) return;
     const current = gv('docNum');
-    const autoPattern = /^[A-Z0-9]+-\d{6,8}-\d+$/;
+    const autoPattern = /^[A-Z0-9]+([-._]?)(\d{4,8}\1)?\d+$/i;
     if (!current || autoPattern.test(current)) sv('docNum', genDocNum());
 };
 
@@ -1928,6 +1961,16 @@ window.updateNumPreview = function() {
     const prefixN = gv('cfgPrefixNacional') || 'CP';
     const now = new Date();
     const d = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0');
+    const mode = (document.getElementById('cfgNumMode') || {}).value || 'fecha';
+    const corr = document.getElementById('cfgNumCorr'); if (corr) corr.style.display = mode === 'correlativo' ? 'block' : 'none';
+    if (mode === 'correlativo') {
+        const c = {prefix, prefixNacional: prefixN, numSep: gv('cfgNumSep') , numDigits: gv('cfgNumDigits'),
+            numIncYear: !!(document.getElementById('cfgNumIncYear') || {}).checked, numReset: false,
+            numNextNac: gv('cfgNumNextNac'), numNextCmr: gv('cfgNumNextCmr')};
+        const sel = document.getElementById('cfgNumSep'); c.numSep = sel ? sel.value : '-';
+        el.textContent = `Internacional: ${genDocNumCorrelativo(c, 'cmr')} · Nacional: ${genDocNumCorrelativo(c, 'nacional')}`;
+        return;
+    }
     el.textContent = `Internacional: ${prefix}-${d}-XXXX · Nacional: ${prefixN}-${d}-XXXX`;
 };
 
@@ -1944,8 +1987,19 @@ window.saveDefaults = function() {
 window.saveCfg = function() {
     const cfg = JSON.parse(localStorage.getItem('zumo_cfg') || '{}');
     Object.assign(cfg, { senderBlock: gv('cfgSenderBlock'), carrierBlock: gv('cfgCarrierBlock'), placeEmission: gv('cfgEmission'), prefix: gv('cfgPrefix') || 'CMR', prefixNacional: gv('cfgPrefixNacional') || 'CP', senderNIF: gv('cfgSenderNIF'), carrierNIF: gv('cfgCarrierNIF') });
+    const _sel = document.getElementById('cfgNumSep');
+    const _dg = parseInt(gv('cfgNumDigits'), 10);
+    Object.assign(cfg, {
+        numMode: gv('cfgNumMode') || 'fecha', numSep: _sel ? _sel.value : '-',
+        numDigits: _dg > 0 ? Math.min(8, _dg) : 4,
+        numIncYear: !!document.getElementById('cfgNumIncYear').checked, numReset: !!document.getElementById('cfgNumReset').checked
+    });
+    [['cfgNumNextNac','nacional'],['cfgNumNextCmr','cmr']].forEach(([id, t]) => {
+        const v = parseInt(gv(id), 10); const k = _numKeys(t);
+        if (v > 0 && v !== _numNext(cfg, t)) { cfg[k.n] = v; cfg[k.y] = new Date().getFullYear(); }
+    });
     localStorage.setItem('zumo_cfg', JSON.stringify(cfg));
-    loadDefaults(); toast('✓ Configuración guardada', 'ok');
+    loadDefaults(); try { updateDocNum(); } catch(e) {} toast('✓ Configuración guardada', 'ok');
 };
 
 window.loadDefaults = function() {
@@ -1972,6 +2026,10 @@ window.syncCfgPanel = function() {
     sv('cfgSenderBlock', cfg.senderBlock); sv('cfgCarrierBlock', cfg.carrierBlock);
     sv('cfgEmission', cfg.placeEmission);  sv('cfgPrefix', cfg.prefix || 'CMR');  sv('cfgPrefixNacional', cfg.prefixNacional || 'CP');
     sv('cfgSenderNIF', cfg.senderNIF || ''); sv('cfgCarrierNIF', cfg.carrierNIF || '');
+    sv('cfgNumMode', cfg.numMode || 'fecha'); sv('cfgNumSep', cfg.numSep == null ? '-' : cfg.numSep); sv('cfgNumDigits', cfg.numDigits || 4);
+    sv('cfgNumNextNac', _numNext(cfg, 'nacional')); sv('cfgNumNextCmr', _numNext(cfg, 'cmr'));
+    document.getElementById('cfgNumIncYear').checked = cfg.numIncYear !== false;
+    document.getElementById('cfgNumReset').checked = cfg.numReset !== false;
     updateNumPreview();
 };
 
@@ -2945,7 +3003,18 @@ window._appInit = async function() {
 // pdf.js — Generación de PDF (pdfmake): modelo Pro y Clásico
 // ============================================================
 
-function _advanceSeq(){ /* no-op: secuencia reemplazada por fecha+albarán */ }
+function _advanceSeq(data){
+    try {
+        const cfg = JSON.parse(localStorage.getItem('zumo_cfg') || '{}');
+        if ((cfg.numMode || 'fecha') !== 'correlativo' || !data) return;
+        const tipo = data.tipoDoc || 'cmr';
+        if (data.docNum !== genDocNumCorrelativo(cfg, tipo)) return; // número manual o ya consumido
+        const k = _numKeys(tipo);
+        cfg[k.n] = _numNext(cfg, tipo) + 1; cfg[k.y] = new Date().getFullYear();
+        localStorage.setItem('zumo_cfg', JSON.stringify(cfg));
+        updateDocNum();
+    } catch(e) { console.warn('Contador:', e); }
+}
 
 // ══ DeCA — Ley 9/2025 de Movilidad Sostenible: QR + subida a Supabase ══
 // Tamaño del QR en el PDF. 100 pt / ~(45+8) módulos ≈ 0,66 mm por módulo:
@@ -3367,9 +3436,10 @@ async function generateCMR(){
         }
     }
     if(saveToHist){
-        try{const id=await dbAdd(STORE,data);data.id=id;await updateHistBadge();clearDraft();_advanceSeq();}catch(e){console.warn('DB save:',e);toast('⚠ Error guardando en historial: '+e.message,'err',6000);}
+        try{const id=await dbAdd(STORE,data);data.id=id;await updateHistBadge();clearDraft();_advanceSeq(data);}catch(e){console.warn('DB save:',e);toast('⚠ Error guardando en historial: '+e.message,'err',6000);}
     } else {
         clearDraft();
+        _advanceSeq(data);
     }
     showOv(true);
     const safetyTimer=setTimeout(()=>{showOv(false);toast('⚠ Tiempo agotado','err',5000)},60000);
