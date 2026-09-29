@@ -1717,7 +1717,7 @@ function card(r, deca){
     const ruta = [r.placeLoading, r.placeDelivery].filter(Boolean).map(esc).join(' → ') || 'Sin ruta';
     const mercancia = [g.desc, kg ? kg + ' kg' : ''].filter(Boolean).map(esc).join(' · ');
     const btns = deca ? `
-        <a class="cd-btn main" href="${esc(deca.url.split('?')[0])}" target="_blank" rel="noopener">VER DeCA</a>
+        <button class="cd-btn main" onclick="showCondFicha('${key}')">VER DeCA</button>
         <button class="cd-btn" onclick="showCondQR('${esc(deca.uuid)}')">MOSTRAR QR</button>
         <button class="cd-btn" onclick="shareCond('${key}')">📲 ENVIAR AL CONDUCTOR</button>
         <a class="cd-btn" href="${esc(deca.url)}" download="${esc(deca.fname)}">DESCARGAR PDF</a>`
@@ -1744,12 +1744,32 @@ window.renderConductor = async function(){
             + (prev.length ? `<details><summary class="cd-h" style="cursor:pointer">ANTERIORES (${prev.length})</summary>${prev.map(r => card(r, byNum[r.docNum])).join('')}</details>` : '');
     } catch(e) { box.innerHTML = '<div class="hist-empty">No se pudieron leer los transportes</div>'; }
 };
+window.showCondFicha = function(key){
+    const e = (window._cdMap||{})[key]; if (!e) return;
+    const r = e.r, g = (r.goodsLines && r.goodsLines[0]) || {};
+    const rows = [
+        ['Documento', r.docNum], ['Fecha', r.dateTransport || r.docDate],
+        ['Origen', r.placeLoading], ['Destino', r.placeDelivery],
+        ['Mercancía', g.desc], ['Peso', (r.pesoNeto || r.pesoBruto || g.weight) ? (r.pesoNeto || r.pesoBruto || g.weight) + ' kg' : ''],
+        ['Transportista', (r.carrierBlock || '').split('\n')[0].trim()], ['NIF transportista', r.carrierNIF],
+        ['Conductor', r.driverName], ['Matrícula', r.plateTractor], ['Remolque', r.plateTrailer]
+    ].filter(x => x[1]);
+    let o = document.getElementById('cd-ficha');
+    if (!o) { o = document.createElement('div'); o.id = 'cd-ficha';
+        o.style.cssText = 'position:fixed;inset:0;z-index:9999;background:var(--bg,#f2ede3);overflow:auto;padding:max(16px,env(safe-area-inset-top)) 16px 30px';
+        document.body.appendChild(o); }
+    o.innerHTML = '<div class="cd-h">DeCA · FICHA DEL TRANSPORTE</div><div class="cd-card">'
+        + rows.map(x => `<div style="padding:9px 0;border-bottom:1px solid var(--bg4)"><div class="cd-num">${esc(x[0]).toUpperCase()}</div><div style="font-weight:700;font-size:1.05rem">${esc(x[1])}</div></div>`).join('')
+        + '</div><button class="cd-btn" onclick="document.getElementById(\'cd-ficha\').style.display=\'none\'">CERRAR</button>';
+    o.style.display = 'block';
+};
 window.shareCond = async function(key){
     const e = (window._cdMap||{})[key]; if (!e || !e.deca) return;
     const r = e.r, g = (r.goodsLines && r.goodsLines[0]) || {};
     const p = {n: r.docNum || '', o: r.placeLoading || '', d: r.placeDelivery || '', m: g.desc || '',
         k: r.pesoNeto || r.pesoBruto || g.weight || '', f: r.dateTransport || r.docDate || '',
-        u: e.deca.url, fn: e.deca.fname, id: e.deca.uuid};
+        u: e.deca.url, fn: e.deca.fname, id: e.deca.uuid,
+        t: r.plateTractor || '', rm: r.plateTrailer || '', c: (r.carrierBlock || '').split('\n')[0].trim(), cn: r.carrierNIF || '', cd: r.driverName || ''};
     const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(p)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
     const url = new URL('conductor.html', location.href).href + '#c=' + b64;
     const text = 'Transporte ' + p.n + (p.d ? ' → ' + p.d : '');

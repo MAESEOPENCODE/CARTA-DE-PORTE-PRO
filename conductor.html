@@ -57,11 +57,18 @@ function card(t,i){
   const g=[t.m,t.k?t.k+' kg':''].filter(Boolean).map(esc).join(' · ');
   const ruta=[t.o,t.d].filter(Boolean).map(esc).join(' → ')||'Sin ruta';
   return `<div class="c"><div class="n">${esc(t.n)}</div><div class="r">${ruta}</div>${g?`<div class="g">${g}</div>`:''}
-    <a class="b m" href="${esc(t.u.split('?')[0])}" target="_blank" rel="noopener">VER DeCA</a>
+    <button class="b m" onclick="ficha(${i})">VER DeCA</button>
     <button class="b" onclick="qr(${i})">MOSTRAR QR</button>
     <a class="b" href="${esc(t.u)}" download="${esc(t.fn)}">DESCARGAR PDF</a>
     <button class="x" onclick="del(${i})">Quitar de mi lista</button></div>`;
 }
+window.ficha=i=>{const t=load()[i];if(!t)return;
+  const rows=[['Documento',t.n],['Fecha',t.f],['Origen',t.o],['Destino',t.d],['Mercancía',t.m],['Peso',t.k?t.k+' kg':''],
+    ['Transportista',t.c],['NIF transportista',t.cn],['Conductor',t.cd],['Matrícula',t.t],['Remolque',t.rm]].filter(x=>x[1]);
+  let o=document.getElementById('fi');
+  if(!o){o=document.createElement('div');o.id='fi';o.style.cssText='position:fixed;inset:0;background:var(--bg);overflow:auto;padding:max(16px,env(safe-area-inset-top)) 16px 30px';document.body.appendChild(o);}
+  o.innerHTML='<h1>DeCA · FICHA DEL TRANSPORTE</h1><div class="c">'+rows.map(x=>`<div style="padding:9px 0;border-bottom:1px solid var(--line)"><div class="n">${esc(x[0]).toUpperCase()}</div><div style="font-weight:700;font-size:1.05rem">${esc(x[1])}</div></div>`).join('')+'</div><button class="b" onclick="document.getElementById(\'fi\').style.display=\'none\'">CERRAR</button>';
+  o.style.display='block';};
 window.qr=i=>{const t=load()[i];if(!t)return;let s=t.qr;if(!s){try{s=qrURL(t.u)}catch(e){return}}
   document.getElementById('qi').src=s;document.getElementById('qn').textContent=t.n;document.getElementById('q').style.display='flex';};
 window.del=i=>{const a=load();a.splice(i,1);save(a);render();};
