@@ -1730,7 +1730,7 @@ window.renderConductor = async function(){
     const box = document.getElementById('cd-list'); if (!box) return;
     try {
         window._cdMap = {};
-        const [docs, decas] = await Promise.all([_idbAll(STORE), _idbAll(DECA)]);
+        const [docs, decas] = await Promise.all([dbAll(STORE), _idbAll(DECA)]);
         const byNum = {}; window._condDecas = {};
         decas.forEach(d => { window._condDecas[d.uuid] = d; if (!byNum[d.docNum] || d.version > byNum[d.docNum].version) byNum[d.docNum] = d; });
         const day = r => r.dateTransport || r.docDate || (r.savedAt||'').slice(0,10);
