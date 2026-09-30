@@ -4743,6 +4743,39 @@ if (syncEl) { syncEl.textContent = '🟢'; syncEl.title = 'Sincronizado con Fire
         tt.style.top  = y + 'px';
     }
 })();
+
+// ── Salir de la aplicación: ventana de confirmación con el botón/gesto atrás ──
+(function(){
+    let salirAbierto = false, saliendo = false;
+    const armar = () => { try { history.pushState({ salirGuard: true }, '', location.href); } catch(e){} };
+    armar();
+    window.addEventListener('popstate', () => {
+        if (saliendo) return;
+        armar();
+        const bs = document.getElementById('bs-bg');
+        // Si la ventana de salir ya está abierta, atrás equivale a CANCELAR
+        if (salirAbierto) { salirAbierto = false; closeBS(); return; }
+        // Si hay otra hoja abierta, atrás solo la cierra
+        if (bs && bs.classList.contains('on')) { closeBS(); return; }
+        salirAbierto = true;
+        showBS('¿SALIR DE LA APLICACIÓN?',
+            '<p style="font-size:.9rem;color:var(--mid);line-height:1.5">Se cerrará la aplicación. Los documentos ya generados no se pierden.</p>',
+            [
+                { label: 'CANCELAR', cls: 'cancel', fn: () => { salirAbierto = false; closeBS(); } },
+                { label: 'SALIR',    cls: 'danger', fn: () => { salirAbierto = false; closeBS(); salirApp(); } }
+            ]);
+    });
+    // Tocar fuera de la hoja también cancela
+    document.getElementById('bs-bg')?.addEventListener('click', e => { if (e.target === e.currentTarget) salirAbierto = false; });
+    function salirApp(){
+        saliendo = true;
+        try { window.close(); } catch(e){}
+        setTimeout(() => { try { history.go(-2); } catch(e){} }, 150);
+        setTimeout(() => {
+            document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#4a3e2e;background:#f2ede3;text-align:center;padding:24px">Aplicación cerrada.<br>Ya puedes cerrar esta ventana.</div>';
+        }, 600);
+    }
+})();
 </script>
 </body>
 </html>
